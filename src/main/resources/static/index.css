@@ -1,0 +1,62 @@
+@font-face {
+    font-family: 'Pretendard';
+    src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff');
+    font-weight: 400;
+    font-style: normal;
+}
+
+a {
+    text-decoration: none;
+    color: black;
+}
+
+#logo {
+    display: block;
+    margin: 0 auto;
+    width: 70vw;
+    max-width: 400px;
+    margin-top: 150px;
+    margin-bottom: 70px;
+}
+
+a.link {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start; /* 텍스트가 이미지 바로 옆에 붙도록 */
+    font-family: Pretendard;
+    font-size: 15pt;
+    border: 1px solid black;
+    width: 300px;
+    padding: 10px 25px;
+    margin: 0 auto 20px auto;
+    border-radius: 5px;
+    text-decoration: none;
+    color: black;
+    box-sizing: border-box;
+    background-color: rgba(0, 156, 166, 0.1);
+    box-shadow: 3px 3px 6px darkgray;
+}
+
+a.link:hover {
+    background-color: rgba(0, 156, 166, 0.7);
+    color: #ffffff;
+}
+
+a.link:active {
+    background-color: rgba(0, 156, 166, 0.9);
+    color: #ffffff;
+}
+
+.menuImage {
+    width: 45px;
+    height: 45px;
+    flex-shrink: 0;
+    margin-right: 20px;
+    object-fit: contain; /* 이미지 비율 유지 */
+}
+
+
+.linkText {
+    width: 200px;
+    white-space: nowrap;
+}
