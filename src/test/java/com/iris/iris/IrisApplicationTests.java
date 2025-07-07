@@ -72,9 +72,10 @@ class IrisApplicationTests {
                 String department = getCellValueAsString(row.getCell(0));
                 String name = getCellValueAsString(row.getCell(1));
                 String employeeNumber = getCellValueAsString(row.getCell(2));
+                String phone = getCellValueAsString(row.getCell(3));
                 
                 // 빈 행 건너뛰기
-                if (department.isEmpty() && name.isEmpty() && employeeNumber.isEmpty()) {
+                if (department.isEmpty() && name.isEmpty() && employeeNumber.isEmpty() && phone.isEmpty()) {
                     continue;
                 }
                 
@@ -83,6 +84,7 @@ class IrisApplicationTests {
                         .department(department)
                         .name(name)
                         .employeeNumber(employeeNumber)
+                        .phone(phone)
                         .build();
                 
                 people.add(person);

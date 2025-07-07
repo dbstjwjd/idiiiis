@@ -6,8 +6,19 @@
 }
 
 a {
-    text-decoration: none;
+    text-decoration: none !important;
     color: black;
+}
+
+div {
+    font-family: Pretendard, serif;
+}
+
+body, ul, li {
+    margin: 0;
+    list-style: none;
+    padding: 0;
+    text-decoration: none;
 }
 
 #logo {
@@ -23,7 +34,6 @@ a.link {
     display: flex;
     align-items: center;
     justify-content: flex-start; /* 텍스트가 이미지 바로 옆에 붙도록 */
-    font-family: Pretendard;
     font-size: 15pt;
     border: 1px solid black;
     width: 300px;
@@ -43,7 +53,7 @@ a.link:hover {
 }
 
 a.link:active {
-    background-color: rgba(0, 156, 166, 0.9);
+    background-color: rgba(0, 156, 166, 0.7);
     color: #ffffff;
 }
 
@@ -59,4 +69,29 @@ a.link:active {
 .linkText {
     width: 200px;
     white-space: nowrap;
+}
+
+.but {
+    background-color: rgba(0, 156, 166, 0.1);
+    border: 1px solid lightgrey;
+    padding: 2px 7px;
+    border-radius: 5px;
+    color: black;
+}
+
+.but:hover {
+    background-color: rgba(0, 156, 166, 0.7);
+    color: #ffffff;
+    border: 1px solid rgba(0, 156, 166, 0.7);
+}
+
+.but:active {
+    background-color: rgba(0, 156, 166, 0.7);
+    color: #ffffff;
+    border: 1px solid rgba(0, 156, 166, 0.7);
+}
+
+table th,
+table td {
+    vertical-align: middle;
 }
