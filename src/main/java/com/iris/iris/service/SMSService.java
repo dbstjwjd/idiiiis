@@ -11,12 +11,12 @@ import java.util.Random;
 
 @Service
 public class SMSService {
-    public void sendSms(String phoneNum) {
+    public void sendSms(String phoneNum, String verKey) {
         DefaultMessageService messageService = NurigoApp.INSTANCE.initialize("NCSEIS05KZ5NXZ4E", "2OKACTN9PVKAEH5BY8JLDDPKCCOHNE6P", "https://api.solapi.com");
         Message message = new Message();
         message.setFrom("01024616781");
         message.setTo(phoneNum);
-        message.setText("인증번호 [" + createRandomNum() + "] ");
+        message.setText("인증번호 [" + verKey + "] ");
 
         try {
             messageService.send(message);

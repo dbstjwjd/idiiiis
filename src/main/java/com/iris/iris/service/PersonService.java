@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -19,6 +20,10 @@ public class PersonService {
 
     public List<Person> getAll() {
         return personRepository.findAll();
+    }
+
+    public Person findById(Long id) {
+        return personRepository.findById(id).orElse(null);
     }
 
     public void setHoliday(HolidayDTO holidayDTO) {

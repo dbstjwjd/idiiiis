@@ -33,11 +33,11 @@ body, ul, li {
 a.link {
     display: flex;
     align-items: center;
-    justify-content: flex-start; /* 텍스트가 이미지 바로 옆에 붙도록 */
+    justify-content: center;
     font-size: 15pt;
     border: 1px solid black;
-    width: 300px;
-    padding: 10px 25px;
+    width: 280px;
+    padding: 15px 25px;
     margin: 0 auto 20px auto;
     border-radius: 5px;
     text-decoration: none;
@@ -57,23 +57,14 @@ a.link:active {
     color: #ffffff;
 }
 
-.menuImage {
-    width: 45px;
-    height: 45px;
-    flex-shrink: 0;
-    margin-right: 20px;
-    object-fit: contain; /* 이미지 비율 유지 */
-}
-
-
 .linkText {
-    width: 200px;
+    width: 190px;
     white-space: nowrap;
 }
 
 .but {
-    background-color: rgba(0, 156, 166, 0.1);
-    border: 1px solid lightgrey;
+    background-color: rgba(0, 156, 166, 0.2);
+    border: 1px solid rgba(0, 156, 166, 0.2);
     padding: 2px 7px;
     border-radius: 5px;
     color: black;
@@ -94,4 +85,10 @@ a.link:active {
 table th,
 table td {
     vertical-align: middle;
+}
+
+.tag {
+    border-bottom: 2px solid rgb(0, 156, 166);
+    display: inline-block;
+    padding: 0 4px;
 }

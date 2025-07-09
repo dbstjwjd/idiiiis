@@ -26,6 +26,8 @@ public class HolidayController {
 
     @GetMapping("/set/{id}")
     public String setHoliday(@PathVariable Long id, Model model) {
+        Person person = personService.findById(id);
+        model.addAttribute("person", person);
         model.addAttribute("personId", id);
         return "holiday_set";
     }
