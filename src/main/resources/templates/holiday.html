@@ -3,7 +3,7 @@
     <a href="/"><img src="/image/idis_logo.png" alt="" width="150" class="mt-2"></a>
     <table class="table mt-3 text-center">
         <thead>
-        <tr>
+        <tr class="table-primary">
             <th>부서</th>
             <th>사번</th>
             <th>이름</th>
@@ -11,7 +11,7 @@
         </tr>
         </thead>
         <tbody>
-        <tr th:each="person:${people}">
+        <tr th:each="person:${paging}">
             <td th:text="${person.department}"></td>
             <td th:text="${person.employeeNumber}"></td>
             <td th:text="${person.name}"></td>
@@ -25,6 +25,29 @@
         </tr>
         </tbody>
     </table>
+    <!-- 페이징처리 시작 -->
+    <div th:if="${!paging.isEmpty()}">
+        <ul class="pagination justify-content-center">
+            <li class="page-item" th:classappend="${!paging.hasPrevious} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{|?page=${paging.number-1}|}">
+                    <span>이전</span>
+                </a>
+            </li>
+            <li th:each="page: ${#numbers.sequence(0, paging.totalPages-1)}"
+                th:if="${page >= paging.number-2 and page <= paging.number+2}"
+                th:classappend="${page == paging.number} ? 'active'"
+                class="page-item">
+                <a th:text="${page}" class="page-link" th:href="@{|?page=${page}|}"></a>
+            </li>
+            <li class="page-item" th:classappend="${!paging.hasNext} ? 'disabled'">
+                <a class="page-link" th:href="@{|?page=${paging.number+1}|}">
+                    <span>다음</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+    <!-- 페이징처리 끝 -->
     <div class="modal fade" id="myModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
