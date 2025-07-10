@@ -2,6 +2,7 @@ package com.iris.iris.controller;
 
 import com.iris.iris.dto.HolidayDTO;
 import com.iris.iris.entity.Person;
+import com.iris.iris.entity.Present;
 import com.iris.iris.service.PersonService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -27,13 +28,14 @@ public class HolidayController {
     @GetMapping("/set/{id}")
     public String setHoliday(@PathVariable Long id, Model model) {
         Person person = personService.findById(id);
+        model.addAttribute("presents", Present.values());
         model.addAttribute("person", person);
-        model.addAttribute("personId", id);
         return "holiday_set";
     }
 
-    @PostMapping("/set")
+    @PostMapping("/set/{id}")
     public String setHoliday(HolidayDTO holidayDTO) {
+        System.out.println(holidayDTO.getReceiver());
         personService.setHoliday(holidayDTO);
         return "redirect:/holiday/list";
     }

@@ -52,13 +52,12 @@
                 const phone = $(this).data('phone');
                 $('#sendBtn').attr('data-phone', phone);
                 $('#checkBtn').data('id', $(this).data('id'));
-                console.log($('#checkBtn').data('id'));
                 $('#modal-phone-input').val(phone);
                 $('#myModal').modal('show');
                 $('#authBox').addClass('d-none');
             });
 
-            $('#sendBtn').click(function (){
+            $('#sendBtn').click(function () {
                 $.ajax({
                     type: "POST",
                     url: "/sendSMS",
@@ -74,22 +73,22 @@
                 });
             });
 
-            $('#checkBtn').click(function (){
+            $('#checkBtn').click(function () {
                 const personId = $(this).data('id');
-               const verKey = $('#verKey').val();
-               $.ajax({
-                  type: "POST",
-                   url: "/checkVerKey",
-                   contentType: 'application/json',
-                   data: JSON.stringify(verKey),
-                   success: function (data) {
-                      alert(data);
-                      location.href="/holiday/set/" + personId;
-                   },
-                   error: function (error) {
-                       console.log(error);
-                   }
-               });
+                const verKey = $('#verKey').val();
+                $.ajax({
+                    type: "POST",
+                    url: "/checkVerKey",
+                    contentType: 'application/json',
+                    data: JSON.stringify(verKey),
+                    success: function (data) {
+                        alert(data);
+                        location.href = "/holiday/set/" + personId;
+                    },
+                    error: function (error) {
+                        console.log(error);
+                    }
+                });
             });
         });
     </script>

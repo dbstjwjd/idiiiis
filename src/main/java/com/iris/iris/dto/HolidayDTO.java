@@ -5,6 +5,7 @@ import lombok.Data;
 
 @Data
 public class HolidayDTO {
+    private String receiver;
 
     private Present present;
 

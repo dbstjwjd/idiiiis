@@ -8,10 +8,11 @@ import lombok.Setter;
 @Setter
 @Entity
 public class Holiday {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    private String receiver;
 
     @Enumerated(EnumType.STRING)
     private Present present;
