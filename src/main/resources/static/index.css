@@ -1191,7 +1191,6 @@ table tbody tr:last-child td {
 }
 
 .auth-toast .floating-label.input-group .form-control[readonly] {
-    background-color: #f8f9fa;
     color: #6c757d;
 }
 
