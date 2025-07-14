@@ -1,36 +1,54 @@
 <html layout:decorate="~{layout}">
 <div layout:fragment="content" class="container">
-    <a href="/"><img src="/image/idis_logo.png" alt="" width="150" class="mt-2"></a>
-    <table class="table mt-3 text-center">
-        <thead>
-        <tr class="table-primary">
-            <th>부서</th>
-            <th>사번</th>
-            <th>이름</th>
-            <th>등록</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="person:${paging}">
-            <td th:text="${person.department}"></td>
-            <td th:text="${person.employeeNumber}"></td>
-            <td th:text="${person.name}"></td>
-            <td>
-                <button type="button" class="open-modal but"
-                        th:attr="data-name=${person.name},
-                    data-phone=${person.phone},
-                    data-id=${person.id}">등록
-                </button>
-            </td>
-        </tr>
-        </tbody>
-    </table>
-    <!-- 페이징처리 시작 -->
-    <div th:if="${!paging.isEmpty()}">
-        <ul class="pagination justify-content-center">
+    <!-- 헤더 영역 -->
+    <div class="header">
+        <a href="/"><img src="/image/idis_logo.png" alt="" width="150" class="mt-2"></a>
+        <h1>명절 선물 대상자 목록</h1>
+    </div>
+
+    <!-- 검색 영역 -->
+    <div class="search-container">
+        <div class="search-wrapper">
+            <div class="input-group">
+                <input type="text" id="search_kw" class="form-control" th:value="${kw}" placeholder="이름, 부서, 사번으로 검색">
+                <button class="but but_dark" type="button" id="btn_search">찾기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 테이블 영역 -->
+    <div class="table-container">
+        <table class="table mt-3 text-center">
+            <thead>
+            <tr class="table-primary">
+                <th>부서</th>
+                <th>사번</th>
+                <th>이름</th>
+                <th>등록</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="person:${paging}">
+                <td th:text="${person.department}"></td>
+                <td th:text="${person.employeeNumber}"></td>
+                <td th:text="${person.name}"></td>
+                <td>
+                    <button type="button" class="open-modal but"
+                            th:attr="data-name=${person.name},
+                        data-phone=${person.phone},
+                        data-id=${person.id}, data-holiday=${person.holiday}">등록
+                    </button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 페이징 영역 -->
+    <div th:if="${!paging.isEmpty()}" class="pagination-container">
+        <ul class="pagination justify-content-center mt-4">
             <li class="page-item" th:classappend="${!paging.hasPrevious} ? 'disabled'">
-                <a class="page-link"
-                   th:href="@{|?page=${paging.number-1}|}">
+                <a class="page-link" href="javascript:void(0)" th:data-page="${paging.number-1}">
                     <span>이전</span>
                 </a>
             </li>
@@ -38,16 +56,17 @@
                 th:if="${page >= paging.number-2 and page <= paging.number+2}"
                 th:classappend="${page == paging.number} ? 'active'"
                 class="page-item">
-                <a th:text="${page}" class="page-link" th:href="@{|?page=${page}|}"></a>
+                <a th:text="${page}" class="page-link" href="javascript:void(0)" th:data-page="${page}"></a>
             </li>
             <li class="page-item" th:classappend="${!paging.hasNext} ? 'disabled'">
-                <a class="page-link" th:href="@{|?page=${paging.number+1}|}">
+                <a class="page-link" href="javascript:void(0)" th:data-page="${paging.number+1}">
                     <span>다음</span>
                 </a>
             </li>
         </ul>
     </div>
-    <!-- 페이징처리 끝 -->
+
+    <!-- 모달 -->
     <div class="modal fade" id="myModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -56,29 +75,64 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="input-group">
-                        <input type="text" class="form-control" id="modal-phone-input" readonly placeholder="">
-                        <button class="but" type="button" id="sendBtn">인증번호 발송</button>
-                    </div>
-                    <div class="input-group mt-2" id="authBox">
-                        <input type="text" class="form-control" placeholder="인증번호 입력" id="verKey">
-                        <button class="but" type="button" style="border: none" id="checkBtn">확인</button>
+                    <div class="form-section">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="modal-phone-input" readonly
+                                   placeholder="휴대폰 번호">
+                            <button class="but" type="button" id="sendBtn">인증번호 발송</button>
+                        </div>
+                        <div class="input-group mt-2" id="authBox">
+                            <input type="text" class="form-control" placeholder="인증번호 입력" id="verKey">
+                            <button class="but" type="button" id="checkBtn">확인</button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    <!-- 숨겨진 폼 -->
+    <form th:action="@{/holiday/list}" method="get" id="searchForm">
+        <input type="hidden" id="kw" name="kw" th:value="${kw}">
+        <input type="hidden" id="page" name="page" th:value="${paging.number}">
+    </form>
+    <div class="toast-container" id="toastContainer"></div>
     <script>
         $(document).ready(function () {
             $('.open-modal').click(function (e) {
                 e.preventDefault();
-                const phone = $(this).data('phone');
+
+                const $this = $(this);
+                const phone = $this.data('phone');
+                const personId = $this.data('id');
+                const hasHoliday = $this.data('holiday') != null;
+
+                // 기존 배송정보가 있으면 확인
+                if (hasHoliday) {
+                    showConfirmModal(
+                        "이미 등록된 배송정보가 있습니다. 수정하시겠습니까?",
+                        () => openAuthModal(phone, personId), // 확인 시 실행
+                        () => showToast("취소되었습니다.", "info") // 취소 시 실행
+                    );
+                } else {
+                    openAuthModal(phone, personId);
+                }
+            });
+
+            function openAuthModal(phone, personId) {
                 $('#sendBtn').attr('data-phone', phone);
-                $('#checkBtn').data('id', $(this).data('id'));
+                $('#checkBtn').data('id', personId);
                 $('#modal-phone-input').val(phone);
                 $('#myModal').modal('show');
                 $('#authBox').addClass('d-none');
-            });
+            }
+
+            function showConfirmModal(message, onConfirm, onCancel) {
+                if (confirm(message)) {
+                    onConfirm();
+                } else if (onCancel) {
+                    onCancel();
+                }
+            }
 
             $('#sendBtn').click(function () {
                 $.ajax({
@@ -96,24 +150,66 @@
                 });
             });
 
-            $('#checkBtn').click(function () {
-                const personId = $(this).data('id');
-                const verKey = $('#verKey').val();
-                $.ajax({
-                    type: "POST",
-                    url: "/checkVerKey",
-                    contentType: 'application/json',
-                    data: JSON.stringify(verKey),
-                    success: function (data) {
-                        alert(data);
-                        location.href = "/holiday/set/" + personId;
-                    },
-                    error: function (error) {
-                        console.log(error);
+            $('#checkBtn').on('click keydown', function (e) {
+                if (e.type === 'click' || e.which === 13) {
+                    const personId = $(this).data('id');
+                    const verKey = $('#verKey').val();
+
+                    if (!verKey.trim()) {
+                        showToast('인증번호를 입력해주세요.', 'error');
+                        $('#verKey').focus();
+                        return;
                     }
-                });
+
+                    $.ajax({
+                        type: "POST",
+                        url: "/checkVerKey",
+                        contentType: 'application/json',
+                        data: JSON.stringify(verKey),
+                        success: function (data) {
+                            if (data === "인증이 완료되었습니다.") {
+                                showToast(data, 'success');
+                                setTimeout(() => {
+                                    location.href = "/holiday/save/" + personId;
+                                }, 1000); // 토스트를 잠깐 보여준 후 이동
+                            } else {
+                                showToast(data, 'error');
+                            }
+                        },
+                        error: function (error) {
+                            console.log(error);
+                            showToast('인증 확인 중 오류가 발생했습니다.', 'error');
+                        }
+                    });
+                }
             });
-        });
+
+            // 인증번호 입력 필드에서 엔터키
+            $('#verKey').keypress(function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $('#checkBtn').trigger('click');
+                }
+            });
+
+            $(".page-link").on("click", function () {
+                $("#page").val($(this).data("page"));
+                $("#searchForm").submit();
+            });
+
+            $("#btn_search").on("click", function () {
+                $("#kw").val($("#search_kw").val());
+                $("#page").val(0);
+                $("#searchForm").submit();
+            });
+
+            $("#search_kw").on("keypress", function (e) {
+                if (e.which === 13) {  // Enter key
+                    $("#btn_search").click();
+                }
+            });
+        })
+        ;
     </script>
 </div>
 </html>

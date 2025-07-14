@@ -11,7 +11,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
+
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Join;
@@ -55,13 +57,14 @@ public class PersonService {
     private Specification<Person> search(String kw) {
         return new Specification<>() {
             private static final long serialVersionUID = 1L;
+
             @Override
             public Predicate toPredicate(Root<Person> q, CriteriaQuery<?> query, CriteriaBuilder cb) {
-                query.distinct(true);  // 중복을 제거
-                return cb.or(cb.like(q.get("employeeNumber"), "%" + kw + "%"), // 제목
+                query.distinct(true);
+                return cb.or(cb.like(q.get("employeeNumber"), "%" + kw + "%"),
                         cb.like(q.get("name"), "%" + kw + "%"),
                         cb.like(q.get("department"), "%" + kw + "%")
-                        );
+                );
             }
         };
     }
@@ -69,7 +72,19 @@ public class PersonService {
     public Page<Person> getList(int page, String kw) {
         Pageable pageable = PageRequest.of(page, 10);
         Specification<Person> spec = search(kw);
-        return personRepository.findAll(pageable);
+        return personRepository.findAll(spec, pageable);
     }
 
+    public Holiday getHolidayById(Long id) {
+        return holidayRepository.findById(id).orElse(null);
+    }
+
+    public void modifyHoliday(Holiday holiday, HolidayDTO holidayDTO) {
+        holiday.setReceiver(holidayDTO.getReceiver());
+        holiday.setAddress(holidayDTO.getAddress());
+        holiday.setDetail(holidayDTO.getDetail());
+        holiday.setPresent(holidayDTO.getPresent());
+        holiday.setPostCode(holidayDTO.getPostCode());
+        holidayRepository.save(holiday);
+    }
 }

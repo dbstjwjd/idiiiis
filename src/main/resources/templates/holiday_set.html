@@ -1,51 +1,104 @@
 <html layout:decorate="~{layout}">
-<div layout:fragment="content" class="container">
-    <a href="/"><img src="/image/idis_logo.png" alt="" width="150" class="mt-2"></a>
-    <form method="post" th:action="@{|/holiday/set/${person.id}|}" id="holidayForm">
-        <div style="width: 90%; margin: 0 auto;">
-            <div class="mb-3">
-                <div class="tag">부서</div>
-                <input type="text" name="department" class="form-control mt-2" readonly th:value="${person.department}">
-            </div>
-            <div class="mb-3">
-                <div class="tag">사번</div>
-                <input type="text" name="employeeNumber" class="form-control mt-2" readonly
-                       th:value="${person.employeeNumber}">
-            </div>
-            <div class="mb-3">
-                <div class="tag">이름</div>
-                <input type="text" name="name" class="form-control mt-2" readonly th:value="${person.name}">
-            </div>
-            <div class="mb-3">
-                <div class="tag">수령인</div>
-                <input type="text" id="receiver" name="receiver" class="form-control mt-2">
-            </div>
-            <div class="mb-3">
-                <div class="tag">선물</div>
-                <select class="form-select mt-2" name="present" id="present">
-                    <option selected disabled>선물을 선택하세요.</option>
-                    <option th:each="present : ${presents}"
-                            th:value="${present.name()}"
-                            th:text="${present.value}">
-                    </option>
-                </select>
-            </div>
-            <div class="mb-3">
-                <div class="tag mb-3">배송지</div>
-                <div class="input-group">
-                    <input type="text" class="form-control" id="postCode" name="postCode" readonly>
-                    <button class="but" type="button" id="searchBtn">우편번호 검색</button>
+<div layout:fragment="content" class="container" style="background: #fff;">
+    <!-- 헤더 영역 -->
+    <div class="header">
+        <a href="/"><img src="/image/idis_logo.png" alt="" width="150" class="mt-2"></a>
+        <h1>명절 선물 정보 입력</h1>
+    </div>
+
+    <!-- 폼 컨테이너 -->
+    <div class="form-container">
+        <form method="post" th:action="@{|/holiday/save/${person.id}|}" id="holidayForm" class="mt-4">
+            <div style="width: 90%; margin: 0 auto;">
+                <!-- 직원 정보 섹션 -->
+                <div class="form-section">
+                    <div class="form-section-title">직원 정보</div>
+                    <!-- 부서 -->
+                    <div class="form-row">
+                        <div class="floating-label">
+                            <input type="text" name="department" class="form-control" readonly placeholder=" "
+                                   th:value="${person.department}">
+                            <label>부서</label>
+                        </div>
+                    </div>
+                    <!-- 사번 -->
+                    <div class="form-row">
+                        <div class="floating-label">
+                            <input type="text" name="employeeNumber" class="form-control" readonly placeholder=" "
+                                   th:value="${person.employeeNumber}">
+                            <label>사번</label>
+                        </div>
+                    </div>
+                    <!-- 이름 -->
+                    <div class="form-row">
+                        <div class="floating-label">
+                            <input type="text" name="name" class="form-control" readonly placeholder=" "
+                                   th:value="${person.name}">
+                            <label>이름</label>
+                        </div>
+                    </div>
                 </div>
-                <input type="text" class="form-control mt-2" id="address" name="address" readonly>
-                <input type="text" class="form-control mt-2" id="detail" name="detail"
-                       placeholder="상세주소를 입력하세요.">
+                <!-- 배송 정보 섹션 -->
+                <div class="form-section">
+                    <div class="form-section-title">배송 정보</div>
+                    <!-- 수령인 -->
+                    <div class="form-row">
+                        <div class="floating-label">
+                            <input type="text" id="receiver" name="receiver" class="form-control" placeholder=" "/>
+                            <label for="receiver">수령인</label>
+                        </div>
+                    </div>
+                    <!-- 선물 선택 -->
+                    <div class="form-row">
+                        <div class="floating-label">
+                            <select class="form-select" name="present" id="present" required>
+                                <option value="" disabled selected hidden></option>
+                                <option th:each="present : ${presents}"
+                                        th:value="${present.name()}"
+                                        th:text="${present.value}">
+                                </option>
+                            </select>
+                            <label for="present">선물</label>
+                        </div>
+                    </div>
+                </div>
+                <!-- 배송 주소 섹션 -->
+                <div class="form-section">
+                    <div class="form-section-title">배송 주소</div>
+                    <!-- 우편번호 -->
+                    <div class="form-row">
+                        <div class="floating-label input-group">
+                            <input type="text" class="form-control" id="postCode" name="postCode" readonly
+                                   placeholder=" "/>
+                            <label for="postCode">우편번호</label>
+                            <button class="but" type="button" id="searchBtn">우편번호 검색</button>
+                        </div>
+                    </div>
+                    <!-- 기본 주소 -->
+                    <div class="form-row">
+                        <div class="floating-label">
+                            <input type="text" class="form-control" id="address" name="address" readonly
+                                   placeholder=" "/>
+                            <label for="address">기본주소</label>
+                        </div>
+                    </div>
+                    <!-- 상세 주소 -->
+                    <div class="form-row">
+                        <div class="floating-label">
+                            <input type="text" class="form-control" id="detail" name="detail" placeholder=" "/>
+                            <label for="detail">상세주소</label>
+                        </div>
+                    </div>
+                </div>
+                <!-- 버튼 영역 -->
+                <div class="button-container">
+                    <button type="button" class="but_dark but" id="submitBtn">저장</button>
+                </div>
             </div>
-            <div class="mt-4 mb-4 text-end">
-                <button type="button" class="but" id="submitBtn">제출</button>
-            </div>
-        </div>
-        <input type="hidden" name="personId" th:value="${person.id}">
-    </form>
+            <input type="hidden" name="personId" th:value="${person.id}">
+        </form>
+    </div>
+    <div class="toast-container" id="toastContainer"></div>
     <script>
         $(document).ready(function () {
             $('#searchBtn').on('click', function () {
@@ -58,15 +111,19 @@
             });
 
             $('#submitBtn').on('click', function () {
-                if ($('#receiver').val() === '')
-                    alert("수령인을 입력해주세요.");
-                else if ($('#present').val() === null || $('#present').val() === '선물을 선택하세요.')
-                    alert("선물을 선택해주세요.");
-                else if ($('#postCode').val().trim() === '' || $('#address').val().trim() === '')
-                    alert("주소를 입력해주세요.");
-                else if ($('#detail').val().trim() === '')
-                    alert("상세주소를 입력해주세요.");
-                else {
+                if ($('#receiver').val() === '') {
+                    showToast('수령인을 입력해주세요.', 'error');
+                    $('html, body').animate({scrollTop: 0}, 500);
+                } else if ($('#present').val() === null || $('#present').val() === '선물을 선택하세요.') {
+                    showToast('선물을 선택해주세요.', 'error');
+                    $('html, body').animate({scrollTop: 0}, 500);
+                } else if ($('#postCode').val().trim() === '' || $('#address').val().trim() === '') {
+                    showToast('주소를 입력해주세요.', 'error');
+                    $('html, body').animate({scrollTop: 0}, 500);
+                } else if ($('#detail').val().trim() === '') {
+                    showToast('상세주소를 입력해주세요.', 'error');
+                    $('html, body').animate({scrollTop: 0}, 500);
+                } else {
                     console.log($('#recipient').val());
                     if (confirm("배송정보를 저장하시겠습니까?"))
                         $('#holidayForm').submit();

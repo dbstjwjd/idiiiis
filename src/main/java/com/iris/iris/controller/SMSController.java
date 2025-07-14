@@ -29,8 +29,9 @@ public class SMSController {
         String savedVerKey = (String) session.getAttribute("verKey");
         System.out.println(savedVerKey);
         if (savedVerKey != null && savedVerKey.equals(verKey.replaceAll("^\"|\"$", ""))) {
-            session.removeAttribute(verKey);
-            return "인증이 완료되었습니다";
+            session.removeAttribute("verKey");
+            session.setAttribute("verified", true);
+            return "인증이 완료되었습니다.";
         } else return "인증번호가 일치하지 않습니다.";
     }
 

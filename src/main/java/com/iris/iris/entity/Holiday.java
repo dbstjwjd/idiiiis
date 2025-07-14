@@ -22,4 +22,5 @@ public class Holiday {
     private String detail;
 
     private String postCode;
+
 }
