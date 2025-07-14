@@ -48,10 +48,15 @@ public class PersonService {
         holiday.setDetail(holidayDTO.getDetail());
         holiday.setPresent(holidayDTO.getPresent());
         holiday.setPostCode(holidayDTO.getPostCode());
-        holidayRepository.save(holiday);
+        holiday.setPerson(person);  // ✅ 이 부분이 빠져있었음!
 
         person.setHoliday(holiday);
-        personRepository.save(person);
+        personRepository.save(person);  // cascade로 인해 holiday도 함께 저장됨
+    }
+
+    public Holiday getHolidayByPersonId(Long personId) {  // 메서드명 변경
+        Person person = findById(personId);
+        return person != null ? person.getHoliday() : null;
     }
 
     private Specification<Person> search(String kw) {
@@ -73,10 +78,6 @@ public class PersonService {
         Pageable pageable = PageRequest.of(page, 10);
         Specification<Person> spec = search(kw);
         return personRepository.findAll(spec, pageable);
-    }
-
-    public Holiday getHolidayById(Long id) {
-        return holidayRepository.findById(id).orElse(null);
     }
 
     public void modifyHoliday(Holiday holiday, HolidayDTO holidayDTO) {

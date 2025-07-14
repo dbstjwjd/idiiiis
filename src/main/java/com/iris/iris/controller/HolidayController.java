@@ -23,7 +23,7 @@ public class HolidayController {
     private final PersonService personService;
 
     @GetMapping("/list")
-    public String list(Model model, @RequestParam(value = "page", defaultValue = "0") int page, @RequestParam(value = "kw", defaultValue = "")  String kw) {
+    public String list(Model model, @RequestParam(value = "page", defaultValue = "0") int page, @RequestParam(value = "kw", defaultValue = "") String kw) {
         Page<Person> paging = personService.getList(page, kw);
         model.addAttribute("paging", paging);
         model.addAttribute("kw", kw);
@@ -39,8 +39,8 @@ public class HolidayController {
         }
         session.removeAttribute("verified");
         Person person = personService.findById(id);
+        Holiday holiday = personService.getHolidayByPersonId(id);  // 메서드명 변경
 
-        Holiday holiday = personService.getHolidayById(id);
         if (holiday != null) {
             model.addAttribute("holiday", holiday);
         }
@@ -50,13 +50,21 @@ public class HolidayController {
     }
 
     @PostMapping("/save/{id}")
-    public String setHoliday(@PathVariable Long id, HolidayDTO holidayDTO) {
-        Holiday holiday = personService.getHolidayById(id);
-        if (holiday != null) {
-            personService.modifyHoliday(holiday, holidayDTO);
+    public String setHoliday(@PathVariable Long id, HolidayDTO holidayDTO, RedirectAttributes redirectAttributes) {
+        try {
+            holidayDTO.setPersonId(id);
+
+            Holiday holiday = personService.getHolidayByPersonId(id);  // 메서드명 변경
+            if (holiday != null) {
+                personService.modifyHoliday(holiday, holidayDTO);
+                redirectAttributes.addFlashAttribute("success", "수정이 완료되었습니다.");
+            } else {
+                personService.setHoliday(holidayDTO);
+                redirectAttributes.addFlashAttribute("success", "등록이 완료되었습니다.");
+            }
             return "redirect:/holiday/list";
-        } else {
-            personService.setHoliday(holidayDTO);
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "저장 중 오류가 발생했습니다.");
             return "redirect:/holiday/list";
         }
     }

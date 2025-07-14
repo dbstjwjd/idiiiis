@@ -10,8 +10,86 @@
     <title>IDIS</title>
 </head>
 <body>
+<div id="toastContainer" class="toast-container"></div>
 <th:block layout:fragment="content"></th:block>
 <script>
+    function showConfirmModal(message, onConfirm, onCancel) {
+        // 기존 모달이 있다면 제거
+        $('#customConfirmModal').remove();
+
+        // 모달 HTML 생성 (토스트 스타일)
+        const modalHtml = `
+        <div class="confirm-toast" id="customConfirmModal">
+            <div class="confirm-toast-content">
+                <div class="confirm-toast-icon">
+                    <span>?</span>
+                </div>
+                <div class="confirm-toast-message">
+                    ${message}
+                </div>
+            </div>
+            <div class="confirm-toast-actions">
+                <button type="button" class="confirm-btn cancel" id="modalCancelBtn">취소</button>
+                <button type="button" class="confirm-btn confirm" id="modalConfirmBtn">확인</button>
+            </div>
+        </div>
+    `;
+
+        // 모달을 body에 추가
+        $('body').append(modalHtml);
+
+        // 왼쪽에서 슬라이드 인 애니메이션
+        $('#customConfirmModal').addClass('show');
+
+        // 확인 버튼 클릭 이벤트
+        $('#modalConfirmBtn').on('click', function () {
+            closeModal();
+            if (onConfirm && typeof onConfirm === 'function') {
+                onConfirm();
+            }
+        });
+
+        // 취소 버튼 클릭 이벤트
+        $('#modalCancelBtn').on('click', function () {
+            closeModal();
+            if (onCancel && typeof onCancel === 'function') {
+                onCancel();
+            }
+        });
+
+        // ESC 키 누를 시 취소
+        $(document).on('keydown.confirmModal', function (e) {
+            if (e.keyCode === 27) { // ESC 키
+                closeModal();
+                if (onCancel && typeof onCancel === 'function') {
+                    onCancel();
+                }
+            }
+        });
+
+        // 자동 닫기 타이머 (선택사항)
+        let autoCloseTimer = setTimeout(function () {
+            closeModal();
+            if (onCancel && typeof onCancel === 'function') {
+                onCancel();
+            }
+        }, 10000); // 10초 후 자동 닫기
+
+        // 모달 닫기 함수
+        function closeModal() {
+            clearTimeout(autoCloseTimer);
+
+            $('#customConfirmModal').removeClass('show').addClass('hide');
+
+            setTimeout(function () {
+                $('#customConfirmModal').remove();
+            }, 300);
+
+            // ESC 키 이벤트 제거
+            $(document).off('keydown.confirmModal');
+        }
+    }
+
     function showToast(message, type = 'info', duration = 4000) {
         const $container = $('#toastContainer');
 
@@ -54,7 +132,6 @@
             $toast.remove();
         }, 300);
     }
-
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"

@@ -44,48 +44,51 @@
                     <!-- 수령인 -->
                     <div class="form-row">
                         <div class="floating-label">
-                            <input type="text" id="receiver" name="receiver" class="form-control" placeholder=" "/>
+                            <input type="text" id="receiver" name="receiver" class="form-control" placeholder=" "
+                                   th:value="${holiday != null ? holiday.receiver : ''}"/>
                             <label for="receiver">수령인</label>
                         </div>
                     </div>
+
                     <!-- 선물 선택 -->
                     <div class="form-row">
                         <div class="floating-label">
                             <select class="form-select" name="present" id="present" required>
-                                <option value="" disabled selected hidden></option>
+                                <option value="" disabled th:selected="${holiday == null}" hidden></option>
                                 <option th:each="present : ${presents}"
                                         th:value="${present.name()}"
-                                        th:text="${present.value}">
+                                        th:text="${present.value}"
+                                        th:selected="${holiday != null && holiday.present == present.name()}">
                                 </option>
                             </select>
                             <label for="present">선물</label>
                         </div>
                     </div>
-                </div>
-                <!-- 배송 주소 섹션 -->
-                <div class="form-section">
-                    <div class="form-section-title">배송 주소</div>
+
                     <!-- 우편번호 -->
                     <div class="form-row">
                         <div class="floating-label input-group">
                             <input type="text" class="form-control" id="postCode" name="postCode" readonly
-                                   placeholder=" "/>
+                                   placeholder=" " th:value="${holiday != null ? holiday.postCode : ''}"/>
                             <label for="postCode">우편번호</label>
                             <button class="but" type="button" id="searchBtn">우편번호 검색</button>
                         </div>
                     </div>
+
                     <!-- 기본 주소 -->
                     <div class="form-row">
                         <div class="floating-label">
                             <input type="text" class="form-control" id="address" name="address" readonly
-                                   placeholder=" "/>
+                                   placeholder=" " th:value="${holiday != null ? holiday.address : ''}"/>
                             <label for="address">기본주소</label>
                         </div>
                     </div>
+
                     <!-- 상세 주소 -->
                     <div class="form-row">
                         <div class="floating-label">
-                            <input type="text" class="form-control" id="detail" name="detail" placeholder=" "/>
+                            <input type="text" class="form-control" id="detail" name="detail" placeholder=" "
+                                   th:value="${holiday != null ? holiday.detail : ''}"/>
                             <label for="detail">상세주소</label>
                         </div>
                     </div>
@@ -98,7 +101,6 @@
             <input type="hidden" name="personId" th:value="${person.id}">
         </form>
     </div>
-    <div class="toast-container" id="toastContainer"></div>
     <script>
         $(document).ready(function () {
             $('#searchBtn').on('click', function () {
@@ -111,10 +113,10 @@
             });
 
             $('#submitBtn').on('click', function () {
-                if ($('#receiver').val() === '') {
+                if ($('#receiver').val().trim() === '') {
                     showToast('수령인을 입력해주세요.', 'error');
                     $('html, body').animate({scrollTop: 0}, 500);
-                } else if ($('#present').val() === null || $('#present').val() === '선물을 선택하세요.') {
+                } else if ($('#present').val() === null || $('#present').val() === '') {
                     showToast('선물을 선택해주세요.', 'error');
                     $('html, body').animate({scrollTop: 0}, 500);
                 } else if ($('#postCode').val().trim() === '' || $('#address').val().trim() === '') {
@@ -124,9 +126,15 @@
                     showToast('상세주소를 입력해주세요.', 'error');
                     $('html, body').animate({scrollTop: 0}, 500);
                 } else {
-                    console.log($('#recipient').val());
-                    if (confirm("배송정보를 저장하시겠습니까?"))
-                        $('#holidayForm').submit();
+                    showConfirmModal(
+                        "배송정보를 저장하시겠습니까?",
+                        function () {
+                            $('#holidayForm').submit();
+                        },
+                        function () {
+                            showToast("저장이 취소되었습니다.", "info");
+                        }
+                    );
                 }
             });
         });

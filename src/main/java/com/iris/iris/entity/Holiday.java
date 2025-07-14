@@ -23,4 +23,8 @@ public class Holiday {
 
     private String postCode;
 
+    @OneToOne
+    @JoinColumn(name = "person_id")
+    private Person person;
+
 }

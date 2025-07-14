@@ -11,7 +11,7 @@
 }
 
 body {
-    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
     margin: 0;
     padding: 0;
     background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
@@ -30,10 +30,6 @@ a {
     text-decoration: none !important;
     color: inherit;
     transition: all 0.3s ease;
-}
-
-div {
-    font-family: 'Pretendard', sans-serif;
 }
 
 /* 기본 컨테이너 스타일 */
@@ -392,7 +388,6 @@ table {
     border-spacing: 0;
     background-color: #ffffff;
     border-radius: 12px;
-    border: 1px solid #e9ecef;
 }
 
 table th,
@@ -541,10 +536,21 @@ table tbody tr:last-child td {
 }
 
 /* 마진 유틸리티 */
-.mt-2 { margin-top: 8px; }
-.mt-3 { margin-top: 16px; }
-.mt-4 { margin-top: 24px; }
-.mb-4 { margin-bottom: 24px; }
+.mt-2 {
+    margin-top: 8px;
+}
+
+.mt-3 {
+    margin-top: 16px;
+}
+
+.mt-4 {
+    margin-top: 24px;
+}
+
+.mb-4 {
+    margin-bottom: 24px;
+}
 
 /* 디스플레이 유틸리티 */
 .d-flex {
@@ -590,6 +596,191 @@ table tbody tr:last-child td {
 
 ::-webkit-scrollbar-thumb:hover {
     background: #138496;
+}
+
+/* 성공/에러 메시지 */
+.success-message {
+    background-color: #d4edda;
+    color: #155724;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border: 1px solid #c3e6cb;
+    margin-bottom: 20px;
+    display: none;
+}
+
+.error-message {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border: 1px solid #f5c6cb;
+    margin-bottom: 20px;
+    display: none;
+}
+
+/* 토스트 컨테이너 */
+.toast-container {
+    position: fixed;
+    top: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    max-width: 600px;
+    width: 90%;
+}
+
+/* 토스트 기본 스타일 */
+.toast {
+    background: white;
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+    border-left: 4px solid #17a2b8;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    min-height: 60px;
+    transform: translateY(-100px);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.toast.show {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.toast.hide {
+    transform: translateY(-100px);
+    opacity: 0;
+}
+
+/* 토스트 타입별 색상 */
+.toast.success {
+    border-left-color: #28a745;
+}
+
+.toast.error {
+    border-left-color: #dc3545;
+}
+
+.toast.warning {
+    border-left-color: #ffc107;
+}
+
+.toast.info {
+    border-left-color: #17a2b8;
+}
+
+/* 토스트 내용 */
+.toast-content {
+    display: flex;
+    align-items: center;
+    flex: 1;
+}
+
+.toast-icon {
+    width: 28px;
+    height: 28px;
+    margin-right: 16px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.toast.success .toast-icon {
+    background-color: #28a745;
+}
+
+.toast.error .toast-icon {
+    background-color: #dc3545;
+}
+
+.toast.warning .toast-icon {
+    background-color: #ffc107;
+}
+
+.toast.info .toast-icon {
+    background-color: #17a2b8;
+}
+
+.toast-message {
+    color: #333;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+.toast-close {
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: #666;
+    cursor: pointer;
+    padding: 0;
+    margin-left: 16px;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.toast-close:hover {
+    background-color: #f1f3f4;
+    color: #333;
+}
+
+/* 폼 검증 스타일 */
+.floating-label input:invalid:not(:focus):not(:placeholder-shown),
+.floating-label select:invalid:not(:focus) {
+    border-color: #dc3545;
+}
+
+.floating-label input:invalid:not(:focus):not(:placeholder-shown) + label,
+.floating-label select:invalid:not(:focus) + label {
+    color: #dc3545;
+}
+
+/* 로딩 상태 */
+.but:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.but:disabled:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+/* 애니메이션 효과 */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.container {
+    animation: fadeIn 0.5s ease-out;
+}
+
+.table-container {
+    animation: fadeIn 0.4s ease-out;
 }
 
 /* 반응형 디자인 */
@@ -655,175 +846,400 @@ table tbody tr:last-child td {
         margin-top: 40px;
         margin-bottom: 40px;
     }
-}
 
-/* 폼 검증 스타일 */
-.floating-label input:invalid:not(:focus):not(:placeholder-shown),
-.floating-label select:invalid:not(:focus) {
-    border-color: #dc3545;
-}
+    /* 모바일 토스트 스타일 */
+    .toast-container {
+        top: 40px;
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%);
+        max-width: none;
+        width: 90%;
+    }
 
-.floating-label input:invalid:not(:focus):not(:placeholder-shown) + label,
-.floating-label select:invalid:not(:focus) + label {
-    color: #dc3545;
-}
-
-/* 로딩 상태 */
-.but:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none;
-}
-
-.but:disabled:hover {
-    transform: none;
-    box-shadow: none;
-}
-
-/* 애니메이션 효과 */
-@keyframes fadeIn {
-    from {
+    .toast {
+        min-height: 50px;
+        padding: 16px 18px;
+        border-radius: 10px;
+        transform: translateY(-100px);
         opacity: 0;
-        transform: translateY(10px);
     }
-    to {
-        opacity: 1;
+
+    .toast.show {
         transform: translateY(0);
+        opacity: 1;
+    }
+
+    .toast.hide {
+        transform: translateY(-100px);
+        opacity: 0;
+    }
+
+    .toast-icon {
+        width: 22px;
+        height: 22px;
+        font-size: 13px;
+        margin-right: 10px;
+    }
+
+    .toast-message {
+        font-size: 14px;
+        line-height: 1.3;
+    }
+
+    .toast-close {
+        width: 22px;
+        height: 22px;
+        font-size: 16px;
+        margin-left: 10px;
     }
 }
 
-.container {
-    animation: fadeIn 0.5s ease-out;
-}
-
-.table-container {
-    animation: fadeIn 0.4s ease-out;
-}
-
-/* 성공/에러 메시지 */
-.success-message {
-    background-color: #d4edda;
-    color: #155724;
-    padding: 12px 16px;
-    border-radius: 8px;
-    border: 1px solid #c3e6cb;
-    margin-bottom: 20px;
-    display: none;
-}
-
-.error-message {
-    background-color: #f8d7da;
-    color: #721c24;
-    padding: 12px 16px;
-    border-radius: 8px;
-    border: 1px solid #f5c6cb;
-    margin-bottom: 20px;
-    display: none;
-}
-
-.toast-container {
+/* 커스텀 확인 모달 스타일 (토스트 스타일) */
+.confirm-toast {
     position: fixed;
-    top: 40px;
-    right: 20px;
-    z-index: 9999;
-    max-width: 400px;
-}
-
-/* 토스트 기본 스타일 */
-.toast {
+    top: 50%;
+    left: 50%;
+    transform: translateY(-50%) translateX(-50%) scale(0.7);
     background: white;
     border-radius: 12px;
-    padding: 16px 20px;
-    margin-bottom: 12px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-    border-left: 4px solid #17a2b8;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    min-width: 300px;
-    transform: translateX(100%);
+    padding: 20px 24px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    border-left: 4px solid #ffc107;
+    z-index: 10000;
+    min-width: 320px;
+    max-width: 400px;
     opacity: 0;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.toast.show {
-    transform: translateX(0);
+.confirm-toast.show {
+    transform: translateY(-50%) translateX(-50%) scale(1);
     opacity: 1;
 }
 
-.toast.hide {
-    transform: translateX(100%);
+.confirm-toast.hide {
+    transform: translateY(-50%) translateX(-50%) scale(0.7);
     opacity: 0;
 }
 
-/* 토스트 타입별 색상 */
-.toast.success {
-    border-left-color: #28a745;
-}
-
-.toast.error {
-    border-left-color: #dc3545;
-}
-
-.toast.warning {
-    border-left-color: #ffc107;
-}
-
-.toast.info {
-    border-left-color: #17a2b8;
-}
-
-/* 토스트 내용 */
-.toast-content {
+.confirm-toast-content {
     display: flex;
     align-items: center;
-    flex: 1;
+    margin-bottom: 16px;
 }
 
-.toast-icon {
-    width: 24px;
-    height: 24px;
-    margin-right: 12px;
+.confirm-toast-icon {
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
+    background-color: #ffc107;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
-    font-weight: bold;
-    font-size: 14px;
+    margin-right: 12px;
+    flex-shrink: 0;
 }
 
-.toast.success .toast-icon {
+.confirm-toast-icon span {
+    color: white;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.confirm-toast-message {
+    color: #333;
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.4;
+    flex: 1;
+}
+
+.confirm-toast-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+.confirm-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 60px;
+}
+
+.confirm-btn.cancel {
+    background-color: #6c757d;
+    color: white;
+}
+
+.confirm-btn.cancel:hover {
+    background-color: #5a6268;
+    transform: translateY(-1px);
+}
+
+.confirm-btn.confirm {
+    background-color: #17a2b8;
+    color: white;
+}
+
+.confirm-btn.confirm:hover {
+    background-color: #138496;
+    transform: translateY(-1px);
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+    .confirm-toast {
+        left: 20px;
+        top: 50%;
+        transform: translateY(-50%) translateX(-100%);
+        right: auto;
+        min-width: auto;
+        max-width: calc(100vw - 40px);
+        padding: 18px 20px;
+    }
+
+    .confirm-toast.show {
+        transform: translateY(-50%) translateX(0);
+    }
+
+    .confirm-toast.hide {
+        transform: translateY(-50%) translateX(-100%);
+    }
+
+    .confirm-toast-content {
+        margin-bottom: 14px;
+    }
+
+    .confirm-toast-icon {
+        width: 24px;
+        height: 24px;
+        margin-right: 10px;
+    }
+
+    .confirm-toast-icon span {
+        font-size: 14px;
+    }
+
+    .confirm-toast-message {
+        font-size: 14px;
+    }
+
+    .confirm-toast-actions {
+        gap: 6px;
+    }
+
+    .confirm-btn {
+        padding: 7px 14px;
+        font-size: 12px;
+        min-width: 55px;
+    }
+}
+
+/* 호버 효과 */
+.confirm-toast:hover {
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+}
+
+/* 포커스 스타일 */
+.confirm-btn:focus {
+    outline: 2px solid rgba(23, 162, 184, 0.4);
+    outline-offset: 1px;
+}
+
+/* 다른 타입별 색상 */
+.confirm-toast.success {
+    border-left-color: #28a745;
+}
+
+.confirm-toast.success .confirm-toast-icon {
     background-color: #28a745;
 }
 
-.toast.error .toast-icon {
+.confirm-toast.error {
+    border-left-color: #dc3545;
+}
+
+.confirm-toast.error .confirm-toast-icon {
     background-color: #dc3545;
 }
 
-.toast.warning .toast-icon {
-    background-color: #ffc107;
+.confirm-toast.info {
+    border-left-color: #17a2b8;
 }
 
-.toast.info .toast-icon {
+.confirm-toast.info .confirm-toast-icon {
     background-color: #17a2b8;
 }
 
-.toast-message {
-    color: #333;
-    font-size: 14px;
-    font-weight: 500;
-    line-height: 1.4;
+/* 더 구체적인 선택자로 우선순위 높이기 */
+.but.but-outline {
+    background-color: white !important;
+    color: #17a2b8 !important;
+    border: 2px solid #17a2b8 !important;
 }
 
-.toast-close {
+.but.but-outline:hover {
+    background-color: #17a2b8 !important;
+    color: white !important;
+    border-color: #17a2b8 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(23, 162, 184, 0.3);
+}
+
+.but.but-outline:focus {
+    outline: 2px solid rgba(23, 162, 184, 0.5) !important;
+    outline-offset: 1px;
+}
+
+.but.but-outline:active {
+    transform: translateY(0);
+    background-color: #138496 !important;
+    border-color: #138496 !important;
+}
+
+/* 토스트 스타일 인증 모달 */
+.auth-toast {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translateY(-50%) translateX(-50%) scale(0.7);
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    border-left: 4px solid #17a2b8;
+    z-index: 10000;
+    min-width: 400px;
+    max-width: 500px;
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: none;
+}
+
+.auth-toast.show {
+    display: block;
+    transform: translateY(-50%) translateX(-50%) scale(1);
+    opacity: 1;
+}
+
+.auth-toast.hide {
+    transform: translateY(-50%) translateX(-50%) scale(0.7);
+    opacity: 0;
+}
+
+.auth-toast-content {
+    display: flex;
+    align-items: flex-start;
+    position: relative;
+}
+
+.auth-toast-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: #17a2b8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 16px;
+    flex-shrink: 0;
+    font-size: 16px;
+}
+
+.auth-toast-body {
+    flex: 1;
+}
+
+.auth-toast-title {
+    margin: 0 0 20px 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+}
+
+.auth-form-section {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.auth-toast .floating-label.input-group {
+    position: relative;
+    margin-bottom: 0;
+}
+
+.auth-toast .floating-label.input-group .form-control {
+    padding: 16px 14px 8px 14px;
+    border: 2px solid #e1e5e9;
+    border-radius: 8px 0 0 8px;
+    border-right: none;
+    font-size: 15px;
+    background-color: #fff;
+    transition: all 0.3s ease;
+    outline: none;
+}
+
+.auth-toast .floating-label.input-group .form-control:focus {
+    border-color: #17a2b8;
+    box-shadow: 0 0 0 3px rgba(23, 162, 184, 0.1);
+}
+
+.auth-toast .floating-label.input-group .form-control[readonly] {
+    background-color: #f8f9fa;
+    color: #6c757d;
+}
+
+.auth-toast .floating-label.input-group label {
+    position: absolute;
+    left: 14px;
+    top: 16px;
+    color: #6c757d;
+    font-size: 15px;
+    transition: all 0.3s ease;
+    pointer-events: none;
+    background-color: #fff;
+    padding: 0 4px;
+    font-weight: 500;
+    z-index: 10;
+}
+
+.auth-toast .floating-label.input-group .form-control:focus + label,
+.auth-toast .floating-label.input-group .form-control:not(:placeholder-shown) + label {
+    top: -8px;
+    left: 14px;
+    font-size: 12px;
+    color: #17a2b8;
+    font-weight: 600;
+}
+
+.auth-toast .floating-label.input-group .form-control[readonly]:not(:placeholder-shown) + label {
+    top: -8px;
+    font-size: 12px;
+    color: #6c757d;
+}
+
+.auth-toast .floating-label.input-group .but {
+    border-radius: 0 8px 8px 0;
+    border-left: none;
+    min-width: 80px;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 10px 16px;
+}
+
+.auth-toast-close {
     background: none;
     border: none;
-    font-size: 18px;
     color: #666;
+    font-size: 20px;
     cursor: pointer;
     padding: 0;
-    margin-left: 12px;
     width: 24px;
     height: 24px;
     display: flex;
@@ -831,23 +1247,88 @@ table tbody tr:last-child td {
     justify-content: center;
     border-radius: 50%;
     transition: all 0.2s ease;
+    position: absolute;
+    right: 0;
+    top: 0;
+    margin-left: 16px;
 }
 
-.toast-close:hover {
+.auth-toast-close:hover {
     background-color: #f1f3f4;
     color: #333;
 }
 
+/* 호버 효과 */
+.auth-toast:hover {
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+}
+
 /* 반응형 */
 @media (max-width: 768px) {
-    .toast-container {
-        top: 10px;
-        right: 10px;
-        left: 10px;
+    .auth-toast {
+        top: 50%;
+        left: 20px;
+        right: 20px;
+        transform: translateY(-50%) translateX(-100%);
+        min-width: auto;
         max-width: none;
+        padding: 20px;
     }
 
-    .toast {
-        min-width: auto;
+    .auth-toast.show {
+        transform: translateY(-50%) translateX(0);
+    }
+
+    .auth-toast.hide {
+        transform: translateY(-50%) translateX(-100%);
+    }
+
+    .auth-toast-content {
+        align-items: flex-start;
+    }
+
+    .auth-toast-icon {
+        width: 28px;
+        height: 28px;
+        font-size: 14px;
+        margin-right: 12px;
+    }
+
+    .auth-toast-title {
+        font-size: 16px;
+        margin-bottom: 16px;
+    }
+
+    .auth-form-section {
+        gap: 14px;
+    }
+
+    .auth-toast .floating-label.input-group .form-control {
+        padding: 14px 12px 6px 12px;
+        font-size: 14px;
+    }
+
+    .auth-toast .floating-label.input-group label {
+        left: 12px;
+        top: 14px;
+        font-size: 14px;
+    }
+
+    .auth-toast .floating-label.input-group .form-control:focus + label,
+    .auth-toast .floating-label.input-group .form-control:not(:placeholder-shown) + label {
+        left: 12px;
+        font-size: 11px;
+    }
+
+    .auth-toast .floating-label.input-group .but {
+        min-width: 70px;
+        font-size: 12px;
+        padding: 8px 12px;
+    }
+
+    .auth-toast-close {
+        width: 20px;
+        height: 20px;
+        font-size: 16px;
     }
 }

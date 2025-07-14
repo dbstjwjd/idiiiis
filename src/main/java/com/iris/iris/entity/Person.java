@@ -29,6 +29,6 @@ public class Person {
     @Column(name = "employee_number", nullable = false, unique = true)
     private String employeeNumber;
 
-    @OneToOne
+    @OneToOne(mappedBy = "person", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Holiday holiday;
 }

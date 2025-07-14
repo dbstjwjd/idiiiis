@@ -33,10 +33,10 @@
                 <td th:text="${person.employeeNumber}"></td>
                 <td th:text="${person.name}"></td>
                 <td>
-                    <button type="button" class="open-modal but"
-                            th:attr="data-name=${person.name},
-                        data-phone=${person.phone},
-                        data-id=${person.id}, data-holiday=${person.holiday}">등록
+                    <button type="button"
+                            th:class="${'open-modal but ' + (person.holiday != null ? 'but-outline' : 'but_dark')}"
+                            th:attr="data-name=${person.name}, data-phone=${person.phone}, data-id=${person.id}, data-holiday=${person.holiday}"
+                            th:text="${person.holiday != null ? '수정' : '등록'}">
                     </button>
                 </td>
             </tr>
@@ -65,29 +65,28 @@
             </li>
         </ul>
     </div>
-
-    <!-- 모달 -->
-    <div class="modal fade" id="myModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">본인인증</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="form-section">
-                        <div class="input-group">
-                            <input type="text" class="form-control" id="modal-phone-input" readonly
-                                   placeholder="휴대폰 번호">
-                            <button class="but" type="button" id="sendBtn">인증번호 발송</button>
-                        </div>
-                        <div class="input-group mt-2" id="authBox">
-                            <input type="text" class="form-control" placeholder="인증번호 입력" id="verKey">
-                            <button class="but" type="button" id="checkBtn">확인</button>
-                        </div>
+    <!-- 토스트 스타일 인증 모달 -->
+    <div class="auth-toast" id="customAuthModal">
+        <div class="auth-toast-content">
+            <div class="auth-toast-icon">
+                <span>🔒</span>
+            </div>
+            <div class="auth-toast-body">
+                <h5 class="auth-toast-title">본인인증</h5>
+                <div class="auth-form-section">
+                    <div class="floating-label input-group">
+                        <input type="text" class="form-control" id="modal-phone-input" readonly placeholder=" ">
+                        <label>휴대폰 번호</label>
+                        <button class="but" type="button" id="sendBtn">발송</button>
+                    </div>
+                    <div class="floating-label input-group mt-3 d-none" id="authBox">
+                        <input type="text" class="form-control" placeholder=" " id="verKey">
+                        <label>인증번호</label>
+                        <button class="but but_dark" type="button" id="checkBtn">확인</button>
                     </div>
                 </div>
             </div>
+            <button class="auth-toast-close" id="authModalClose">×</button>
         </div>
     </div>
     <!-- 숨겨진 폼 -->
@@ -95,7 +94,6 @@
         <input type="hidden" id="kw" name="kw" th:value="${kw}">
         <input type="hidden" id="page" name="page" th:value="${paging.number}">
     </form>
-    <div class="toast-container" id="toastContainer"></div>
     <script>
         $(document).ready(function () {
             $('.open-modal').click(function (e) {
@@ -106,33 +104,44 @@
                 const personId = $this.data('id');
                 const hasHoliday = $this.data('holiday') != null;
 
-                // 기존 배송정보가 있으면 확인
                 if (hasHoliday) {
                     showConfirmModal(
                         "이미 등록된 배송정보가 있습니다. 수정하시겠습니까?",
-                        () => openAuthModal(phone, personId), // 확인 시 실행
-                        () => showToast("취소되었습니다.", "info") // 취소 시 실행
+                        () => openCustomAuthModal(phone, personId), // 커스텀 모달로 변경
+                        () => showToast("취소되었습니다.", "info")
                     );
                 } else {
-                    openAuthModal(phone, personId);
+                    openCustomAuthModal(phone, personId); // 커스텀 모달로 변경
                 }
             });
 
-            function openAuthModal(phone, personId) {
+            function openCustomAuthModal(phone, personId) {
                 $('#sendBtn').attr('data-phone', phone);
                 $('#checkBtn').data('id', personId);
                 $('#modal-phone-input').val(phone);
-                $('#myModal').modal('show');
                 $('#authBox').addClass('d-none');
+
+                // 토스트 스타일 모달 표시
+                $('#customAuthModal').addClass('show');
             }
 
-            function showConfirmModal(message, onConfirm, onCancel) {
-                if (confirm(message)) {
-                    onConfirm();
-                } else if (onCancel) {
-                    onCancel();
-                }
+            function closeCustomAuthModal() {
+                $('#customAuthModal').removeClass('show').addClass('hide');
+
+                setTimeout(() => {
+                    $('#customAuthModal').removeClass('hide');
+                }, 300);
             }
+
+            $('#authModalClose').on('click', function () {
+                closeCustomAuthModal();
+            });
+
+            $(document).on('keydown', function (e) {
+                if (e.keyCode === 27 && $('#customAuthModal').hasClass('show')) {
+                    closeCustomAuthModal();
+                }
+            });
 
             $('#sendBtn').click(function () {
                 $.ajax({
@@ -141,7 +150,7 @@
                     contentType: 'application/json',
                     data: JSON.stringify($(this).data('phone')),
                     success: function (data) {
-                        alert(data);
+                        showToast(data);
                         $('#authBox').hide().removeClass('d-none').slideDown();
                     },
                     error: function (error) {
