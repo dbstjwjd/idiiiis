@@ -3,7 +3,7 @@
     <!-- 헤더 영역 -->
     <div class="header">
         <a href="/"><img src="/image/idis_logo.png" alt="" width="150" class="mt-2"></a>
-        <h1>명절 선물 대상자 목록</h1>
+        <h1>생일케이크 신청 대상자 목록</h1>
     </div>
 
     <div class="search-container">
@@ -34,9 +34,9 @@
                 <td th:text="${person.name}"></td>
                 <td>
                     <button type="button"
-                            th:class="${'open-modal but ' + (person.holiday != null ? 'but-outline' : 'but_dark')}"
-                            th:attr="data-name=${person.name}, data-phone=${person.phone}, data-id=${person.id}, data-holiday=${person.holiday}"
-                            th:text="${person.holiday != null ? '수정' : '등록'}">
+                            th:class="${'open-modal but ' + (person.cake != null ? 'but-outline' : 'but_dark')}"
+                            th:attr="data-name=${person.name}, data-phone=${person.phone}, data-id=${person.id}, data-cake=${person.cake}"
+                            th:text="${person.cake != null ? '수정' : '등록'}">
                     </button>
                 </td>
             </tr>
@@ -89,8 +89,7 @@
             <button class="auth-toast-close" id="authModalClose">×</button>
         </div>
     </div>
-    <!-- 숨겨진 폼 -->
-    <form th:action="@{/holiday/list}" method="get" id="searchForm">
+    <form th:action="@{/cake/list}" method="get" id="searchForm">
         <input type="hidden" id="kw" name="kw" th:value="${kw}">
         <input type="hidden" id="page" name="page" th:value="${paging.number}">
     </form>
@@ -102,16 +101,16 @@
                 const $this = $(this);
                 const phone = $this.data('phone');
                 const personId = $this.data('id');
-                const hasHoliday = $this.data('holiday') != null;
+                const hasHoliday = $this.data('cake') != null;
 
                 if (hasHoliday) {
                     showConfirmModal(
                         "이미 등록된 배송정보가 있습니다. 수정하시겠습니까?",
-                        () => openCustomAuthModal(phone, personId), // 커스텀 모달로 변경
+                        () => openCustomAuthModal(phone, personId),
                         () => showToast("취소되었습니다.", "info")
                     );
                 } else {
-                    openCustomAuthModal(phone, personId); // 커스텀 모달로 변경
+                    openCustomAuthModal(phone, personId);
                 }
             });
 
@@ -121,7 +120,6 @@
                 $('#modal-phone-input').val(phone);
                 $('#authBox').addClass('d-none');
 
-                // 토스트 스타일 모달 표시
                 $('#customAuthModal').addClass('show');
             }
 
@@ -179,7 +177,7 @@
                             if (data === "인증이 완료되었습니다.") {
                                 showToast(data, 'success');
                                 setTimeout(() => {
-                                    location.href = "/holiday/save/" + personId;
+                                    location.href = "/cake/save/" + personId;
                                 }, 1000); // 토스트를 잠깐 보여준 후 이동
                             } else {
                                 showToast(data, 'error');
@@ -193,7 +191,6 @@
                 }
             });
 
-            // 인증번호 입력 필드에서 엔터키
             $('#verKey').keypress(function (e) {
                 if (e.which === 13) {
                     e.preventDefault();

@@ -31,4 +31,10 @@ public class Person {
 
     @OneToOne(mappedBy = "person", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Holiday holiday;
+
+    @OneToOne(mappedBy = "person", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Cake cake;
+
+    @OneToOne(mappedBy = "person", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Gift gift;
 }

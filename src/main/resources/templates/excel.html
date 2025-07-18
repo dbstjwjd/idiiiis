@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout}">
+<div layout:fragment="content" class="container">
+    <!-- 헤더 영역 -->
+    <div class="header">
+        <a href="/"><img src="/image/idis_logo.png" alt="" width="150" class="mt-2"></a>
+        <h1>엑셀 파일 다운로드</h1>
+    </div>
+
+    <!-- 메인 네비게이션 -->
+    <div class="nav-container">
+        <div class="download-buttons">
+            <div class="link excel-download-link holiday-download" id="holidayExcelDownload">
+                <span class="linkText">🎁 명절 선물 신청 목록 다운로드</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
+                     class="bi bi-download" viewBox="0 0 16 16">
+                    <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/>
+                    <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z"/>
+                </svg>
+            </div>
+
+            <div class="link excel-download-link cake-download" id="cakeExcelDownload">
+                <span class="linkText">🎂 생일케이크 신청 목록 다운로드</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
+                     class="bi bi-download" viewBox="0 0 16 16">
+                    <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/>
+                    <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z"/>
+                </svg>
+            </div>
+        </div>
+
+        <div class="navigation-links">
+            <a href="/holiday/list" class="link nav-link">
+                <span class="linkText">명절 선물 목록으로 이동</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                     class="bi bi-arrow-right-circle" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd"
+                          d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8m15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0M4.5 7.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5z"/>
+                </svg>
+            </a>
+
+            <a href="/cake/list" class="link nav-link">
+                <span class="linkText">생일케이크 목록으로 이동</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                     class="bi bi-arrow-right-circle" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd"
+                          d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8m15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0M4.5 7.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5z"/>
+                </svg>
+            </a>
+        </div>
+    </div>
+
+    <!-- 정보 섹션 -->
+    <div class="form-container">
+        <div class="info-sections">
+            <!-- 명절선물 정보 -->
+            <div class="form-section holiday-section">
+                <div class="form-section-title">🎁 명절 선물 다운로드 정보</div>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">포함 정보</div>
+                        <div class="info-value">신청자명, 사번, 선물종류, 우편번호, 배송주소, 연락처, 수령자</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">파일명</div>
+                        <div class="info-value">명절선물신청목록_<span class="currentDate"></span>.xlsx</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 생일케이크 정보 -->
+            <div class="form-section cake-section">
+                <div class="form-section-title">🎂 생일케이크 다운로드 정보</div>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">포함 정보</div>
+                        <div class="info-value">신청자명, 사번, 케이크 종류, 배송일, 우편번호, 배송주소, 상세주소, 수령자</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">파일명</div>
+                        <div class="info-value">생일케이크신청목록_<span class="currentDate"></span>.xlsx</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 공통 정보 -->
+            <div class="form-section common-section">
+                <div class="form-section-title">📋 공통 정보</div>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">파일 형식</div>
+                        <div class="info-value">Excel 파일 (.xlsx)</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">데이터 처리</div>
+                        <div class="info-value">미신청자는 빈칸으로 표시, 신청자만 상세 정보 표시</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 로딩 상태 -->
+    <div id="loading" class="loading-container d-none">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">엑셀 파일을 생성하고 있습니다...</div>
+    </div>
+
+    <!-- 토스트 컨테이너 -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        $(document).ready(function () {
+            // 현재 날짜 표시
+            const today = new Date().toISOString().split('T')[0];
+            $('.currentDate').text(today);
+
+            // 명절선물 엑셀 다운로드
+            $('#holidayExcelDownload').click(function (e) {
+                e.preventDefault();
+                downloadExcel('/excel/holiday', '명절 선물');
+            });
+
+            // 생일케이크 엑셀 다운로드
+            $('#cakeExcelDownload').click(function (e) {
+                e.preventDefault();
+                downloadExcel('/excel/cake', '생일케이크');
+            });
+
+            // 엑셀 다운로드 함수
+            function downloadExcel(url, type) {
+                const loadingElement = $('#loading');
+                const downloadLinks = $('.excel-download-link');
+
+                // 로딩 상태 표시
+                loadingElement.removeClass('d-none');
+                downloadLinks.css('pointer-events', 'none').css('opacity', '0.6');
+
+                // 로딩 텍스트 업데이트
+                $('.loading-text').text(`${type} 엑셀 파일을 생성하고 있습니다...`);
+
+                try {
+                    // 다운로드 URL로 직접 이동
+                    window.location.href = url;
+
+                    // 잠시 후 로딩 상태 해제
+                    setTimeout(() => {
+                        loadingElement.addClass('d-none');
+                        downloadLinks.css('pointer-events', 'auto').css('opacity', '1');
+                        showToast(`${type} 엑셀 파일 다운로드를 시작했습니다.`, 'success');
+                    }, 1500);
+
+                } catch (error) {
+                    console.error('엑셀 다운로드 오류:', error);
+                    showToast(`${type} 엑셀 파일 다운로드 중 오류가 발생했습니다. 다시 시도해주세요.`, 'error');
+
+                    // 로딩 상태 해제
+                    loadingElement.addClass('d-none');
+                    downloadLinks.css('pointer-events', 'auto').css('opacity', '1');
+                }
+            }
+        });
+    </script>
+    <style>
+        .download-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .navigation-links {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .excel-download-link {
+            background: linear-gradient(180deg, #4a90e2, #357abd);
+            color: white !important;
+            border: 2px solid #4a90e2;
+            padding: 20px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .excel-download-link:hover {
+            background: linear-gradient(180deg, #357abd, #2e5f8f);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
+        }
+
+        .holiday-download {
+            background: linear-gradient(180deg, #7fb3d3, #6ba0c7);
+            border-color: #7fb3d3;
+        }
+
+        .holiday-download:hover {
+            background: linear-gradient(180deg, #6ba0c7, #5b8fb0);
+            box-shadow: 0 4px 12px rgba(127, 179, 211, 0.3);
+        }
+
+        .cake-download {
+            background: linear-gradient(180deg, #5a8bb8, #4a7ba3);
+            border-color: #5a8bb8;
+        }
+
+        .cake-download:hover {
+            background: linear-gradient(180deg, #4a7ba3, #3d6b8f);
+            box-shadow: 0 4px 12px rgba(90, 139, 184, 0.3);
+        }
+
+        .nav-link {
+            background: linear-gradient(135deg, #6c757d, #5a6268);
+            color: white !important;
+            border: 2px solid #6c757d;
+            padding: 12px 16px;
+            font-size: 14px;
+        }
+
+        .nav-link:hover {
+            background: linear-gradient(135deg, #5a6268, #495057);
+            border-color: #5a6268;
+            color: white !important;
+        }
+
+        .info-sections {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 20px;
+        }
+
+        .common-section {
+            grid-column: 1 / -1;
+        }
+
+        .holiday-section {
+            border-left-color: #3f85cf;
+        }
+
+        .holiday-section .form-section-title {
+            color: #3f85cf;
+        }
+
+        .holiday-section .info-label {
+            color: #3f85cf;
+        }
+
+        .cake-section {
+            border-left-color: #0f4a9e;
+        }
+
+        .cake-section .form-section-title {
+            color: #0f4a9e;
+        }
+
+        .cake-section .info-label {
+            color: #0f4a9e;
+        }
+
+        .form-section {
+            background-color: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            border-left: 4px solid #17a2b8;
+        }
+
+        .form-section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #17a2b8;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+
+        .info-item {
+            padding: 12px;
+            background-color: white;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #17a2b8;
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+
+        .info-value {
+            color: #495057;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .loading-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #17a2b8;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 16px;
+        }
+
+        .loading-text {
+            color: white;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 모바일 반응형 */
+        @media (max-width: 768px) {
+            .download-buttons {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .navigation-links {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .info-sections {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .excel-download-link {
+                padding: 16px;
+            }
+
+            .nav-link {
+                padding: 10px 12px;
+                font-size: 13px;
+            }
+
+            .form-section {
+                padding: 16px;
+            }
+
+            .loading-text {
+                font-size: 14px;
+            }
+
+            .loading-spinner {
+                width: 32px;
+                height: 32px;
+                border-width: 3px;
+            }
+        }
+
+        /* 태블릿 반응형 */
+        @media (max-width: 992px) and (min-width: 769px) {
+            .download-buttons {
+                gap: 16px;
+            }
+
+            .info-sections {
+                gap: 20px;
+            }
+        }
+    </style>
+</div>
+</html>

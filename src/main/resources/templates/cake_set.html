@@ -1,0 +1,366 @@
+<html layout:decorate="~{layout}">
+<div layout:fragment="content" class="container" style="background: #fff;">
+    <!-- 헤더 영역 -->
+    <div class="header">
+        <a href="/"><img src="/image/idis_logo.png" alt="" width="150" class="mt-2"></a>
+        <h1>생일케이크 정보 입력</h1>
+    </div>
+
+    <!-- 폼 컨테이너 -->
+    <div class="form-container">
+        <form method="post" th:action="@{|/cake/save/${person.id}|}" id="cakeForm" class="mt-4">
+            <div style="width: 90%; margin: 0 auto;">
+                <!-- 직원 정보 섹션 -->
+                <div class="form-section">
+                    <div class="form-section-title">직원 정보</div>
+                    <!-- 부서 -->
+                    <div class="form-row">
+                        <div class="floating-label">
+                            <input type="text" name="department" class="form-control" readonly placeholder=" "
+                                   th:value="${person.department}">
+                            <label>부서</label>
+                        </div>
+                    </div>
+                    <!-- 사번 -->
+                    <div class="form-row">
+                        <div class="floating-label">
+                            <input type="text" name="employeeNumber" class="form-control" readonly placeholder=" "
+                                   th:value="${person.employeeNumber}">
+                            <label>사번</label>
+                        </div>
+                    </div>
+                    <!-- 이름 -->
+                    <div class="form-row">
+                        <div class="floating-label">
+                            <input type="text" name="name" class="form-control" readonly placeholder=" "
+                                   th:value="${person.name}">
+                            <label>이름</label>
+                        </div>
+                    </div>
+                </div>
+                <!-- 배송 정보 섹션 -->
+                <div class="form-section">
+                    <div class="form-section-title">배송 정보</div>
+                    <!-- 수령인 -->
+                    <div class="form-row">
+                        <div class="floating-label">
+                            <input type="text" id="receiver" name="receiver" class="form-control" placeholder=" "
+                                   th:value="${cake != null ? cake.receiver : ''}"/>
+                            <label for="receiver">수령인</label>
+                        </div>
+                    </div>
+
+                    <!-- 기념일 구분 -->
+                    <div class="form-row">
+                        <div class="floating-label">
+                            <input type="text" class="form-control" id="division" name="division" placeholder=" "
+                                   th:value="${cake != null ? cake.division : ''}"/>
+                            <label for="division">구분 (ex 생일, 결혼기념일 등)</label>
+                        </div>
+                    </div>
+
+                    <!-- 케이크 종류 선택 -->
+                    <div class="form-row">
+                        <div class="floating-label">
+                            <select class="form-select" name="cakeType" id="cakeType" required>
+                                <option value="" disabled th:selected="${cake == null}" hidden></option>
+                                <option th:each="cakeType : ${cakeTypes}"
+                                        th:value="${cakeType.name()}"
+                                        th:text="${cakeType.value}"
+                                        th:selected="${cake != null && cake.cakeType == cakeType.name()}">
+                                </option>
+                            </select>
+                            <label for="cakeType">종류</label>
+                        </div>
+                    </div>
+
+                    <!-- 배송 희망일 -->
+                    <div class="form-row">
+                        <div class="floating-label">
+                            <input type="date" class="form-control" id="deliveryDate" name="deliveryDate"
+                                   placeholder=" " th:value="${cake != null ? cake.deliveryDate : ''}" required/>
+                            <label for="deliveryDate">배송 희망일</label>
+                        </div>
+                    </div>
+
+                    <!-- 우편번호 -->
+                    <div class="form-row">
+                        <div class="floating-label input-group">
+                            <input type="text" class="form-control" id="postCode" name="postCode" readonly
+                                   placeholder=" " th:value="${cake != null ? cake.postCode : ''}"/>
+                            <label for="postCode">우편번호</label>
+                            <button class="but" type="button" id="searchBtn">우편번호 검색</button>
+                        </div>
+                    </div>
+
+                    <!-- 기본 주소 -->
+                    <div class="form-row">
+                        <div class="floating-label">
+                            <input type="text" class="form-control" id="address" name="address" readonly
+                                   placeholder=" " th:value="${cake != null ? cake.address : ''}"/>
+                            <label for="address">기본주소</label>
+                        </div>
+                    </div>
+
+                    <!-- 상세 주소 -->
+                    <div class="form-row">
+                        <div class="floating-label">
+                            <input type="text" class="form-control" id="detail" name="detail" placeholder=" "
+                                   th:value="${cake != null ? cake.detail : ''}"/>
+                            <label for="detail">상세주소</label>
+                        </div>
+                    </div>
+                </div>
+                <!-- 버튼 영역 -->
+                <div class="button-container">
+                    <button type="button" class="but_dark but" id="submitBtn">저장</button>
+                </div>
+            </div>
+            <input type="hidden" name="personId" th:value="${person.id}">
+        </form>
+    </div>
+    <script>
+        $(document).ready(function () {
+            flatpickr("#deliveryDate", {
+                locale: "ko",
+                dateFormat: "Y-m-d",
+                minDate: "2026-01-01",
+                maxDate: "2026-12-31",
+                defaultDate: "${cake != null ? cake.deliveryDate : ''}",
+                theme: "material_blue",
+                monthSelectorType: "dropdown",
+                prevArrow: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15,18 9,12 15,6"></polyline></svg>',
+                nextArrow: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9,6 15,12 9,18"></polyline></svg>',
+                onOpen: function (selectedDates, dateStr, instance) {
+                    // 달력이 열릴 때 애니메이션 효과
+                    instance.calendarContainer.style.opacity = "0";
+                    instance.calendarContainer.style.transform = "scale(0.95)";
+                    setTimeout(() => {
+                        instance.calendarContainer.style.transition = "all 0.3s ease";
+                        instance.calendarContainer.style.opacity = "1";
+                        instance.calendarContainer.style.transform = "scale(1)";
+                    }, 10);
+                },
+                onClose: function (selectedDates, dateStr, instance) {
+                    // 선택된 날짜 표시 개선
+                    if (dateStr) {
+                        const date = new Date(dateStr);
+                        const options = {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                            weekday: 'short'
+                        };
+                        const formattedDate = date.toLocaleDateString('ko-KR', options);
+                        $('#deliveryDate').attr('title', formattedDate);
+                    }
+                }
+            });
+
+
+            $('#searchBtn').on('click', function () {
+                new daum.Postcode({
+                    oncomplete: function (data) {
+                        $('#postCode').val(data.zonecode);
+                        $('#address').val(data.roadAddress);
+                    }
+                }).open();
+            });
+
+            $('#submitBtn').on('click', function () {
+                if ($('#receiver').val().trim() === '') {
+                    showToast('수령인을 입력해주세요.', 'error');
+                    $('html, body').animate({scrollTop: 0}, 500);
+                } else if ($('#division').val() === null || $('#division').val() === '') {
+                    showToast('기념일 구분을 입력해주세요.', 'error');
+                    $('html, body').animate({scrollTop: 0}, 500);
+                } else if ($('#cakeType').val() === null || $('#cakeType').val() === '') {
+                    showToast('종류를 선택해주세요.', 'error');
+                    $('html, body').animate({scrollTop: 0}, 500);
+                } else if ($('#deliveryDate').val().trim() === '') {
+                    showToast('배송 희망일을 선택해주세요.', 'error');
+                    $('html, body').animate({scrollTop: 0}, 500);
+                } else if ($('#postCode').val().trim() === '' || $('#address').val().trim() === '') {
+                    showToast('주소를 입력해주세요.', 'error');
+                    $('html, body').animate({scrollTop: 0}, 500);
+                } else if ($('#detail').val().trim() === '') {
+                    showToast('상세주소를 입력해주세요.', 'error');
+                    $('html, body').animate({scrollTop: 0}, 500);
+                } else {
+                    var selectedDate = $('#deliveryDate').val();
+
+                    if (!selectedDate || selectedDate.indexOf('2026') !== 0) {
+                        showToast('배송 희망일은 2026년으로만 선택 가능합니다.', 'error');
+                        $('html, body').animate({scrollTop: 0}, 500);
+                        return;
+                    }
+                    showCakeDeliveryConfirmModal();
+                }
+            });
+
+            function showCakeDeliveryConfirmModal() {
+                // 모달 HTML 생성
+                const modalHtml = `
+    <div class="delivery-confirm-toast" id="cakeDeliveryConfirmModal">
+        <div class="delivery-toast-header">
+            <h5 class="delivery-toast-title">
+                <i class="fas fa-birthday-cake"></i>배송정보 최종 확인
+            </h5>
+        </div>
+        <div class="delivery-toast-body">
+            <div class="delivery-warning">
+                <i class="fas fa-exclamation-triangle" style="margin-right: 8px;"></i>
+                <strong>중요:</strong> 아래 배송정보를 정확히 확인해주세요.<br>
+                <strong>잘못된 정보로 인한 오배송은 본인 책임입니다!</strong>
+            </div>
+
+            <div class="delivery-info-section">
+                <div class="delivery-section-title">
+                    <i class="fas fa-user"></i>직원 정보
+                </div>
+                <div class="delivery-info-grid">
+                    <div class="delivery-info-item">
+                        <div class="delivery-info-label">부서</div>
+                        <div class="delivery-info-value" id="confirmDepartment"></div>
+                    </div>
+                    <div class="delivery-info-item">
+                        <div class="delivery-info-label">사번</div>
+                        <div class="delivery-info-value" id="confirmEmployeeNumber"></div>
+                    </div>
+                    <div class="delivery-info-item">
+                        <div class="delivery-info-label">이름</div>
+                        <div class="delivery-info-value" id="confirmName"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="delivery-info-section">
+                <div class="delivery-section-title">
+                    <i class="fas fa-birthday-cake"></i>케이크 정보
+                </div>
+                <div class="delivery-info-grid">
+                    <div class="delivery-info-item">
+                        <div class="delivery-info-label">수령인</div>
+                        <div class="delivery-info-value highlight" id="confirmReceiver"></div>
+                    </div>
+                    <div class="delivery-info-item">
+                        <div class="delivery-info-label">구분</div>
+                        <div class="delivery-info-value" id="confirmDivision"></div>
+                    </div>
+                    <div class="delivery-info-item">
+                        <div class="delivery-info-label">종류</div>
+                        <div class="delivery-info-value success" id="confirmCakeType"></div>
+                    </div>
+                    <div class="delivery-info-item">
+                        <div class="delivery-info-label">배송희망일</div>
+                        <div class="delivery-info-value highlight" id="confirmDeliveryDate"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="delivery-info-section">
+                <div class="delivery-section-title">
+                    <i class="fas fa-map-marker-alt"></i>배송 주소
+                </div>
+                <div class="delivery-info-grid">
+                    <div class="delivery-info-item">
+                        <div class="delivery-info-label">우편번호</div>
+                        <div class="delivery-info-value" id="confirmPostCode"></div>
+                    </div>
+                    <div class="delivery-info-item" style="grid-column: 1 / -1;">
+                        <div class="delivery-info-label">기본주소</div>
+                        <div class="delivery-info-value" id="confirmAddress"></div>
+                    </div>
+                    <div class="delivery-info-item" style="grid-column: 1 / -1;">
+                        <div class="delivery-info-label">상세주소</div>
+                        <div class="delivery-info-value" id="confirmDetail"></div>
+                    </div>
+                </div>
+                <div class="delivery-full-address">
+                    <i class="fas fa-home" style="margin-right: 8px;"></i>
+                    <span id="confirmFullAddress"></span>
+                </div>
+            </div>
+
+            <div class="delivery-final-warning">
+                <i class="fas fa-info-circle" style="margin-right: 8px;"></i>
+                위 정보가 정확한지 다시 한번 확인해주세요. 확인 후 저장 버튼을 눌러주세요.
+            </div>
+        </div>
+        <div class="delivery-toast-footer">
+            <button type="button" class="delivery-btn cancel" id="modalCancelBtn">
+                <i class="fas fa-times"></i>수정하기
+            </button>
+            <button type="button" class="delivery-btn confirm" id="modalConfirmBtn">
+                <i class="fas fa-check"></i>확인 후 저장
+            </button>
+        </div>
+    </div>
+    `;
+
+                // 모달을 body에 추가
+                $('body').append(modalHtml);
+
+                // 정보 채우기
+                $('#confirmDepartment').text($('input[name="department"]').val());
+                $('#confirmEmployeeNumber').text($('input[name="employeeNumber"]').val());
+                $('#confirmName').text($('input[name="name"]').val());
+                $('#confirmReceiver').text($('#receiver').val());
+                $('#confirmDivision').text($('#division').val());
+                $('#confirmCakeType').text($('#cakeType option:selected').text());
+                $('#confirmDeliveryDate').text($('#deliveryDate').val());
+                $('#confirmPostCode').text($('#postCode').val());
+                $('#confirmAddress').text($('#address').val());
+                $('#confirmDetail').text($('#detail').val());
+
+                var fullAddress = '(' + $('#postCode').val() + ') ' + $('#address').val() + ' ' + $('#detail').val();
+                $('#confirmFullAddress').text(fullAddress);
+
+                // 애니메이션으로 모달 표시
+                setTimeout(() => {
+                    $('#cakeDeliveryConfirmModal').addClass('show');
+                }, 10);
+
+                // 확인 버튼 클릭 이벤트
+                $('#modalConfirmBtn').on('click', function () {
+                    closeCakeDeliveryModal();
+                    showToast('배송정보가 저장되었습니다.', 'success');
+                    setTimeout(function () {
+                        $('#cakeForm').submit();
+                    }, 1000);
+                });
+
+                // 취소 버튼 클릭 이벤트
+                $('#modalCancelBtn').on('click', function () {
+                    closeCakeDeliveryModal();
+                    showToast('수정을 위해 취소되었습니다.', 'info');
+                });
+
+                // ESC 키 누를 시 취소
+                $(document).on('keydown.cakeDeliveryModal', function (e) {
+                    if (e.keyCode === 27) { // ESC 키
+                        closeCakeDeliveryModal();
+                        showToast('수정을 위해 취소되었습니다.', 'info');
+                    }
+                });
+
+                // 자동 닫기 타이머 (30초)
+                let autoCloseTimer = setTimeout(function () {
+                    closeCakeDeliveryModal();
+                    showToast('시간 초과로 취소되었습니다.', 'info');
+                }, 30000);
+
+                // 모달 닫기 함수
+                function closeCakeDeliveryModal() {
+                    clearTimeout(autoCloseTimer);
+                    $('#cakeDeliveryConfirmModal').removeClass('show').addClass('hide');
+                    setTimeout(function () {
+                        $('#cakeDeliveryConfirmModal').remove();
+                    }, 400);
+                    $(document).off('keydown.cakeDeliveryModal');
+                }
+            }
+        });
+    </script>
+</div>
+</html>
