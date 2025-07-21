@@ -1,0 +1,221 @@
+<html layout:decorate="~{layout}">
+<div layout:fragment="content" class="container">
+    <!-- 헤더 영역 -->
+    <div class="header">
+        <a href="/"><img src="/image/idis_logo.png" alt="" width="150" class="mt-2"></a>
+        <h1>격려품 신청 대상자 목록</h1>
+    </div>
+
+    <div class="search-container">
+        <div class="search-wrapper">
+            <div class="floating-label input-group">
+                <input type="text" id="search_kw" class="form-control" th:value="${kw}" placeholder=" ">
+                <label>이름, 부서, 사번</label>
+                <button class="but but_dark" type="button" id="btn_search">찾기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 테이블 영역 -->
+    <div class="table-container">
+        <table class="table mt-3 text-center">
+            <thead>
+            <tr class="table-primary">
+                <th>부서</th>
+                <th>사번</th>
+                <th>이름</th>
+                <th>등록</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="person:${paging}">
+                <td th:text="${person.department}"></td>
+                <td th:text="${person.employeeNumber}"></td>
+                <td th:text="${person.name}"></td>
+                <td>
+                    <button type="button"
+                            th:class="${'open-modal but ' + (person.gift != null ? 'but-outline' : 'but_dark')}"
+                            th:attr="data-name=${person.name}, data-phone=${person.phone}, data-id=${person.id}, data-gift=${person.gift}"
+                            th:text="${person.gift != null ? '수정' : '등록'}">
+                    </button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 페이징 영역 -->
+    <div th:if="${!paging.isEmpty()}" class="pagination-container">
+        <ul class="pagination justify-content-center mt-4">
+            <li class="page-item" th:classappend="${!paging.hasPrevious} ? 'disabled'">
+                <a class="page-link" href="javascript:void(0)" th:data-page="${paging.number-1}">
+                    <span>이전</span>
+                </a>
+            </li>
+            <li th:each="page: ${#numbers.sequence(0, paging.totalPages-1)}"
+                th:if="${page >= paging.number-2 and page <= paging.number+2}"
+                th:classappend="${page == paging.number} ? 'active'"
+                class="page-item">
+                <a th:text="${page}" class="page-link" href="javascript:void(0)" th:data-page="${page}"></a>
+            </li>
+            <li class="page-item" th:classappend="${!paging.hasNext} ? 'disabled'">
+                <a class="page-link" href="javascript:void(0)" th:data-page="${paging.number+1}">
+                    <span>다음</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+    <!-- 토스트 스타일 인증 모달 -->
+    <div class="auth-toast" id="customAuthModal">
+        <div class="auth-toast-content">
+            <div class="auth-toast-icon">
+                <span>🔒</span>
+            </div>
+            <div class="auth-toast-body">
+                <h5 class="auth-toast-title">본인인증</h5>
+                <div class="auth-form-section">
+                    <div class="floating-label input-group">
+                        <input type="text" class="form-control" id="modal-phone-input" readonly placeholder=" ">
+                        <label>휴대폰 번호</label>
+                        <button class="but" type="button" id="sendBtn">발송</button>
+                    </div>
+                    <div class="floating-label input-group mt-3 d-none" id="authBox">
+                        <input type="text" class="form-control" placeholder=" " id="verKey">
+                        <label>인증번호</label>
+                        <button class="but but_dark" type="button" id="checkBtn">확인</button>
+                    </div>
+                </div>
+            </div>
+            <button class="auth-toast-close" id="authModalClose">×</button>
+        </div>
+    </div>
+    <form th:action="@{/gift/list}" method="get" id="searchForm">
+        <input type="hidden" id="kw" name="kw" th:value="${kw}">
+        <input type="hidden" id="page" name="page" th:value="${paging.number}">
+    </form>
+    <script>
+        $(document).ready(function () {
+            $('.open-modal').click(function (e) {
+                e.preventDefault();
+
+                const $this = $(this);
+                const phone = $this.data('phone');
+                const personId = $this.data('id');
+                const hasCake = $this.data('cake') != null;
+
+                if (hasCake) {
+                    showConfirmModal(
+                        "이미 등록된 배송정보가 있습니다. 수정하시겠습니까?",
+                        () => openCustomAuthModal(phone, personId),
+                        () => showToast("취소되었습니다.", "info")
+                    );
+                } else {
+                    openCustomAuthModal(phone, personId);
+                }
+            });
+
+            function openCustomAuthModal(phone, personId) {
+                $('#sendBtn').attr('data-phone', phone);
+                $('#checkBtn').data('id', personId);
+                $('#modal-phone-input').val(phone);
+                $('#authBox').addClass('d-none');
+
+                $('#customAuthModal').addClass('show');
+            }
+
+            function closeCustomAuthModal() {
+                $('#customAuthModal').removeClass('show').addClass('hide');
+
+                setTimeout(() => {
+                    $('#customAuthModal').removeClass('hide');
+                }, 300);
+            }
+
+            $('#authModalClose').on('click', function () {
+                closeCustomAuthModal();
+            });
+
+            $(document).on('keydown', function (e) {
+                if (e.keyCode === 27 && $('#customAuthModal').hasClass('show')) {
+                    closeCustomAuthModal();
+                }
+            });
+
+            $('#sendBtn').click(function () {
+                $.ajax({
+                    type: "POST",
+                    url: "/sendSMS",
+                    contentType: 'application/json',
+                    data: JSON.stringify($(this).data('phone')),
+                    success: function (data) {
+                        showToast(data);
+                        $('#authBox').hide().removeClass('d-none').slideDown();
+                    },
+                    error: function (error) {
+                        console.log(error)
+                    }
+                });
+            });
+
+            $('#checkBtn').on('click keydown', function (e) {
+                if (e.type === 'click' || e.which === 13) {
+                    const personId = $(this).data('id');
+                    const verKey = $('#verKey').val();
+
+                    if (!verKey.trim()) {
+                        showToast('인증번호를 입력해주세요.', 'error');
+                        $('#verKey').focus();
+                        return;
+                    }
+
+                    $.ajax({
+                        type: "POST",
+                        url: "/checkVerKey",
+                        contentType: 'application/json',
+                        data: JSON.stringify(verKey),
+                        success: function (data) {
+                            if (data === "인증이 완료되었습니다.") {
+                                showToast(data, 'success');
+                                setTimeout(() => {
+                                    location.href = "/gift/save/" + personId;
+                                }, 1000); // 토스트를 잠깐 보여준 후 이동
+                            } else {
+                                showToast(data, 'error');
+                            }
+                        },
+                        error: function (error) {
+                            console.log(error);
+                            showToast('인증 확인 중 오류가 발생했습니다.', 'error');
+                        }
+                    });
+                }
+            });
+
+            $('#verKey').keypress(function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $('#checkBtn').trigger('click');
+                }
+            });
+
+            $(".page-link").on("click", function () {
+                $("#page").val($(this).data("page"));
+                $("#searchForm").submit();
+            });
+
+            $("#btn_search").on("click", function () {
+                $("#kw").val($("#search_kw").val());
+                $("#page").val(0);
+                $("#searchForm").submit();
+            });
+
+            $("#search_kw").on("keypress", function (e) {
+                if (e.which === 13) {  // Enter key
+                    $("#btn_search").click();
+                }
+            });
+        })
+        ;
+    </script>
+</div>
+</html>

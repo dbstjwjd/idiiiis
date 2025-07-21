@@ -1,14 +1,16 @@
 package com.iris.iris.service;
 
 import com.iris.iris.dto.CakeDTO;
+import com.iris.iris.dto.GiftDTO;
 import com.iris.iris.dto.HolidayDTO;
 import com.iris.iris.entity.Cake;
+import com.iris.iris.entity.Gift;
 import com.iris.iris.entity.Holiday;
 import com.iris.iris.entity.Person;
 import com.iris.iris.repository.CakeRepository;
+import com.iris.iris.repository.GiftRepository;
 import com.iris.iris.repository.HolidayRepository;
 import com.iris.iris.repository.PersonRepository;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -35,10 +37,7 @@ public class PersonService {
     private final PersonRepository personRepository;
     private final HolidayRepository holidayRepository;
     private final CakeRepository cakeRepository;
-
-    public List<Person> getAll() {
-        return personRepository.findAll();
-    }
+    private final GiftRepository giftRepository;
 
     public Person findById(Long id) {
         return personRepository.findById(id).orElse(null);
@@ -82,6 +81,22 @@ public class PersonService {
         personRepository.save(person);
     }
 
+    public void setGift(GiftDTO giftDTO) {
+        Person person = personRepository.findById(giftDTO.getPersonId()).orElse(null);
+        if (person == null) {
+            return;
+        }
+
+        Gift gift = new Gift();
+        gift.setReceiver(giftDTO.getReceiver());
+        gift.setAddress(giftDTO.getAddress());
+        gift.setDetail(giftDTO.getDetail());
+        gift.setPostCode(giftDTO.getPostCode());
+        gift.setPerson(person);
+        person.setGift(gift);
+        personRepository.save(person);
+    }
+
     public Holiday getHolidayByPersonId(Long personId) {
         Person person = findById(personId);
         return person != null ? person.getHoliday() : null;
@@ -90,6 +105,11 @@ public class PersonService {
     public Cake getCakeByPersonId(Long personId) {
         Person person = findById(personId);
         return person != null ? person.getCake() : null;
+    }
+
+    public Gift getGiftByPersonId(Long personId) {
+        Person person = findById(personId);
+        return person != null ? person.getGift() : null;
     }
 
     private Specification<Person> search(String kw) {
@@ -131,6 +151,14 @@ public class PersonService {
         cake.setDivision(cakeDTO.getDivision());
         cake.setDeliveryDate(cakeDTO.getDeliveryDate());
         cakeRepository.save(cake);
+    }
+
+    public void modifyGift(Gift gift, GiftDTO giftDTO) {
+        gift.setReceiver(giftDTO.getReceiver());
+        gift.setAddress(giftDTO.getAddress());
+        gift.setDetail(giftDTO.getDetail());
+        gift.setPostCode(giftDTO.getPostCode());
+        giftRepository.save(gift);
     }
 
     public byte[] generateHolidayExcel() throws IOException {
@@ -460,6 +488,193 @@ public class PersonService {
     }
 
     private void setCakeColumnWidths(Sheet sheet, int columnCount) {
+        for (int i = 0; i < columnCount; i++) {
+            sheet.autoSizeColumn(i);
+
+            if (sheet.getColumnWidth(i) < 2000) {
+                sheet.setColumnWidth(i, 2000);
+            }
+
+            switch (i) {
+                case 0: // NO
+                    sheet.setColumnWidth(i, 1500);
+                    break;
+                case 1: // 신청자
+                    sheet.setColumnWidth(i, 3000);
+                    break;
+                case 2: // 사번
+                    sheet.setColumnWidth(i, 3500);
+                    break;
+                case 3: // 부서
+                    sheet.setColumnWidth(i, 4000);
+                    break;
+                case 4: // 케이크 종류
+                    sheet.setColumnWidth(i, 5500);
+                    break;
+                case 5: // 배송일
+                    sheet.setColumnWidth(i, 3500);
+                    break;
+                case 6: // 우편번호
+                    sheet.setColumnWidth(i, 3000);
+                    break;
+                case 7: // 배송 주소 (합쳐진 주소)
+                    sheet.setColumnWidth(i, 10000);
+                    break;
+                case 8: // 연락처
+                    sheet.setColumnWidth(i, 4000);
+                    break;
+                case 9: // 수령자
+                    sheet.setColumnWidth(i, 3000);
+                    break;
+            }
+        }
+    }
+
+    public byte[] generateGiftExcel() throws IOException {
+        // 모든 Person 데이터 조회 (Cake 정보 포함)
+        List<Person> personList = personRepository.findAllWithGift();
+
+        // 엑셀 워크북 생성
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("격려품신청목록");
+
+        // 헤더 스타일 설정
+        CellStyle headerStyle = createGiftHeaderStyle(workbook);
+        CellStyle dataStyle = createGiftDataStyle(workbook);
+        CellStyle centerStyle = createGiftCenterStyle(workbook);
+
+        // 헤더 행 생성 (상세주소 제거, 배송주소로 통합)
+        Row headerRow = sheet.createRow(0);
+        String[] headers = {"NO", "신청자", "사번", "부서", "우편번호", "배송 주소", "연락처", "수령자"};
+
+        for (int i = 0; i < headers.length; i++) {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(headers[i]);
+            cell.setCellStyle(headerStyle);
+        }
+
+        // 데이터 행 생성
+        int rowIndex = 1;
+        for (Person person : personList) {
+            Row row = sheet.createRow(rowIndex);
+
+            // NO
+            Cell noCell = row.createCell(0);
+            noCell.setCellValue(rowIndex);
+            noCell.setCellStyle(centerStyle);
+
+            // 신청자
+            Cell nameCell = row.createCell(1);
+            nameCell.setCellValue(person.getName() != null ? person.getName() : "");
+            nameCell.setCellStyle(centerStyle);
+
+            // 사번
+            Cell employeeNumberCell = row.createCell(2);
+            employeeNumberCell.setCellValue(person.getEmployeeNumber() != null ? person.getEmployeeNumber() : "");
+            employeeNumberCell.setCellStyle(centerStyle);
+
+            // 부서
+            Cell departmentCell = row.createCell(3);
+            departmentCell.setCellValue(person.getDepartment() != null ? person.getDepartment() : "");
+            departmentCell.setCellStyle(centerStyle);
+
+            // Cake 정보가 있는 경우
+            if (person.getGift() != null) {
+                Gift gift = person.getGift();
+                // 우편번호
+                Cell postCodeCell = row.createCell(4);
+                postCodeCell.setCellValue(gift.getPostCode() != null ? gift.getPostCode() : "");
+                postCodeCell.setCellStyle(centerStyle);
+
+                // 배송 주소 (주소 + 상세주소 합친 것)
+                Cell addressCell = row.createCell(5);
+                String fullAddress = buildGiftFullAddress(gift);
+                addressCell.setCellValue(fullAddress);
+                addressCell.setCellStyle(dataStyle);
+
+                Cell phonCell = row.createCell(6);
+                phonCell.setCellValue(gift.getPerson().getPhone() != null ? gift.getPerson().getPhone() : "");
+                phonCell.setCellStyle(centerStyle);
+
+                // 수령자
+                Cell receiverCell = row.createCell(7);
+                receiverCell.setCellValue(gift.getReceiver() != null ? gift.getReceiver() : "");
+                receiverCell.setCellStyle(centerStyle);
+
+            } else {
+                for (int i = 4; i <= 9; i++) {
+                    Cell emptyCell = row.createCell(i);
+                    emptyCell.setCellValue("");
+                    emptyCell.setCellStyle(dataStyle);
+                }
+            }
+
+            rowIndex++;
+        }
+
+        // 열 너비 설정
+        setCakeColumnWidths(sheet, headers.length);
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        workbook.write(outputStream);
+        workbook.close();
+
+        return outputStream.toByteArray();
+    }
+
+    private String buildGiftFullAddress(Gift gift) {
+        StringBuilder address = new StringBuilder();
+
+        if (gift.getAddress() != null && !gift.getAddress().isEmpty()) {
+            address.append(gift.getAddress());
+        }
+
+        if (gift.getDetail() != null && !gift.getDetail().isEmpty()) {
+            if (address.length() > 0) {
+                address.append(" ");
+            }
+            address.append(gift.getDetail());
+        }
+
+        return address.toString();
+    }
+
+    private CellStyle createGiftHeaderStyle(Workbook workbook) {
+        CellStyle style = workbook.createCellStyle();
+        Font font = workbook.createFont();
+        font.setBold(true);
+        font.setFontHeightInPoints((short) 12);
+        style.setFont(font);
+        style.setAlignment(HorizontalAlignment.CENTER);
+        style.setVerticalAlignment(VerticalAlignment.CENTER);
+        style.setFillForegroundColor(IndexedColors.LIGHT_YELLOW.getIndex());
+        style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        style.setBorderTop(BorderStyle.THIN);
+        style.setBorderBottom(BorderStyle.THIN);
+        style.setBorderLeft(BorderStyle.THIN);
+        style.setBorderRight(BorderStyle.THIN);
+        return style;
+    }
+
+    private CellStyle createGiftDataStyle(Workbook workbook) {
+        CellStyle style = workbook.createCellStyle();
+        style.setAlignment(HorizontalAlignment.LEFT);
+        style.setVerticalAlignment(VerticalAlignment.CENTER);
+        style.setBorderTop(BorderStyle.THIN);
+        style.setBorderBottom(BorderStyle.THIN);
+        style.setBorderLeft(BorderStyle.THIN);
+        style.setBorderRight(BorderStyle.THIN);
+        style.setWrapText(true); // 텍스트 줄바꿈
+        return style;
+    }
+
+    private CellStyle createGiftCenterStyle(Workbook workbook) {
+        CellStyle style = createCakeDataStyle(workbook);
+        style.setAlignment(HorizontalAlignment.CENTER);
+        return style;
+    }
+
+    private void setGiftColumnWidths(Sheet sheet, int columnCount) {
         for (int i = 0; i < columnCount; i++) {
             sheet.autoSizeColumn(i);
 

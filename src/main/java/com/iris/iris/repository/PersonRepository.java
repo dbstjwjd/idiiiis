@@ -19,4 +19,6 @@ public interface PersonRepository extends JpaRepository<Person, Long> {
     List<Person> findAllWithHoliday();
     @Query("SELECT p FROM Person p LEFT JOIN FETCH p.cake ORDER BY p.id")
     List<Person> findAllWithCake();
+    @Query("SELECT p FROM Person p LEFT JOIN FETCH p.gift ORDER BY p.id")
+    List<Person> findAllWithGift();
 }
