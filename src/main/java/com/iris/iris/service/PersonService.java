@@ -161,95 +161,78 @@ public class PersonService {
         giftRepository.save(gift);
     }
 
-    public byte[] generateHolidayExcel() throws IOException {
-        // 모든 Person 데이터 조회 (Holiday 정보 포함)
-        List<Person> personList = personRepository.findAllWithHoliday();
+    // Excel 생성 공통 메서드들
+    private CellStyle createHeaderStyle(Workbook workbook) {
+        CellStyle style = workbook.createCellStyle();
+        Font font = workbook.createFont();
+        font.setBold(true);
+        font.setFontHeightInPoints((short) 12);
+        style.setFont(font);
+        style.setAlignment(HorizontalAlignment.CENTER);
+        style.setVerticalAlignment(VerticalAlignment.CENTER);
+        style.setFillForegroundColor(IndexedColors.LIGHT_YELLOW.getIndex());
+        style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        style.setBorderTop(BorderStyle.THIN);
+        style.setBorderBottom(BorderStyle.THIN);
+        style.setBorderLeft(BorderStyle.THIN);
+        style.setBorderRight(BorderStyle.THIN);
+        return style;
+    }
 
-        // 엑셀 워크북 생성
-        Workbook workbook = new XSSFWorkbook();
-        Sheet sheet = workbook.createSheet("명절선물신청목록");
+    private CellStyle createDataStyle(Workbook workbook) {
+        CellStyle style = workbook.createCellStyle();
+        style.setAlignment(HorizontalAlignment.LEFT);
+        style.setVerticalAlignment(VerticalAlignment.CENTER);
+        style.setBorderTop(BorderStyle.THIN);
+        style.setBorderBottom(BorderStyle.THIN);
+        style.setBorderLeft(BorderStyle.THIN);
+        style.setBorderRight(BorderStyle.THIN);
+        style.setWrapText(true);
+        return style;
+    }
 
-        // 헤더 스타일 설정
-        CellStyle headerStyle = createHeaderStyle(workbook);
-        CellStyle dataStyle = createDataStyle(workbook);
+    private CellStyle createCenterStyle(Workbook workbook) {
+        CellStyle style = createDataStyle(workbook);
+        style.setAlignment(HorizontalAlignment.CENTER);
+        return style;
+    }
 
-        // 헤더 행 생성
-        Row headerRow = sheet.createRow(0);
-        String[] headers = {"NO", "신청자", "사번", "선물 선택", "우편번호", "배송 주소", "연락처", "수령자"};
+    private Cell createCell(Row row, int columnIndex, String value, CellStyle style) {
+        Cell cell = row.createCell(columnIndex);
+        cell.setCellValue(value != null ? value : "");
+        cell.setCellStyle(style);
+        return cell;
+    }
 
-        for (int i = 0; i < headers.length; i++) {
-            Cell cell = headerRow.createCell(i);
-            cell.setCellValue(headers[i]);
-            cell.setCellStyle(headerStyle);
-        }
+    private Cell createNumberCell(Row row, int columnIndex, int value, CellStyle style) {
+        Cell cell = row.createCell(columnIndex);
+        cell.setCellValue(value);
+        cell.setCellStyle(style);
+        return cell;
+    }
 
-        // 데이터 행 생성
-        int rowIndex = 1;
-        for (Person person : personList) {
-            Row row = sheet.createRow(rowIndex);
-
-            // NO
-            Cell noCell = row.createCell(0);
-            noCell.setCellValue(rowIndex);
-            noCell.setCellStyle(dataStyle);
-
-            // 신청자
-            Cell nameCell = row.createCell(1);
-            nameCell.setCellValue(person.getName());
-            nameCell.setCellStyle(dataStyle);
-
-            // 사번
-            Cell employeeNumberCell = row.createCell(2);
-            employeeNumberCell.setCellValue(person.getEmployeeNumber());
-            employeeNumberCell.setCellStyle(dataStyle);
-
-            // Holiday 정보가 있는 경우
-            if (person.getHoliday() != null) {
-                // 선물 선택 (enum의 getValue() 사용)
-                Cell presentCell = row.createCell(3);
-                String presentName = "";
-                if (person.getHoliday().getPresent() != null) {
-                    presentName = person.getHoliday().getPresent().getValue();
-                }
-                presentCell.setCellValue(presentName);
-                presentCell.setCellStyle(dataStyle);
-
-                // 우편번호
-                Cell postCodeCell = row.createCell(4);
-                postCodeCell.setCellValue(person.getHoliday().getPostCode() != null ?
-                        person.getHoliday().getPostCode() : "");
-                postCodeCell.setCellStyle(dataStyle);
-
-                // 배송 주소 (주소 + 상세주소 합쳐서)
-                Cell addressCell = row.createCell(5);
-                String fullAddress = buildFullAddress(person.getHoliday());
-                addressCell.setCellValue(fullAddress);
-                addressCell.setCellStyle(dataStyle);
-
-                // 연락처
-                Cell phoneCell = row.createCell(6);
-                phoneCell.setCellValue(person.getPhone());
-                phoneCell.setCellStyle(dataStyle);
-
-                // 수령자
-                Cell receiverCell = row.createCell(7);
-                receiverCell.setCellValue(person.getHoliday().getReceiver() != null ?
-                        person.getHoliday().getReceiver() : "");
-                receiverCell.setCellStyle(dataStyle);
-            } else {
-                // Holiday 정보가 없는 경우 빈 셀 생성
-                for (int i = 3; i <= 7; i++) {
-                    Cell emptyCell = row.createCell(i);
-                    emptyCell.setCellValue("");
-                    emptyCell.setCellStyle(dataStyle);
-                }
-            }
-
-            rowIndex++;
-        }
-
-        for (int i = 0; i < headers.length; i++) {
+    private void setColumnWidths(Sheet sheet, ExcelType type, int columnCount) {
+        // 먼저 모든 컬럼에 대해 autoSizeColumn 실행
+        for (int i = 0; i < columnCount; i++) {
             sheet.autoSizeColumn(i);
+        }
+
+        // 타입별 컬럼 너비 설정
+        switch (type) {
+            case HOLIDAY:
+                setHolidayColumnWidths(sheet, columnCount);
+                break;
+            case CAKE:
+                setCakeColumnWidths(sheet, columnCount);
+                break;
+            case GIFT:
+                setGiftColumnWidths(sheet, columnCount);
+                break;
+        }
+    }
+
+    private void setHolidayColumnWidths(Sheet sheet, int columnCount) {
+        for (int i = 0; i < columnCount; i++) {
             if (sheet.getColumnWidth(i) < 3000) {
                 sheet.setColumnWidth(i, 3000);
             }
@@ -274,227 +257,13 @@ public class PersonService {
                     break;
             }
         }
-
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        workbook.write(outputStream);
-        workbook.close();
-
-        return outputStream.toByteArray();
-    }
-
-    private String buildFullAddress(Holiday holiday) {
-        StringBuilder address = new StringBuilder();
-
-        if (holiday.getAddress() != null && !holiday.getAddress().isEmpty()) {
-            address.append(holiday.getAddress());
-        }
-
-        if (holiday.getDetail() != null && !holiday.getDetail().isEmpty()) {
-            if (address.length() > 0) {
-                address.append(" ");
-            }
-            address.append(holiday.getDetail());
-        }
-
-        return address.toString();
-    }
-
-    private CellStyle createHeaderStyle(Workbook workbook) {
-        CellStyle style = workbook.createCellStyle();
-        Font font = workbook.createFont();
-        font.setBold(true);
-        font.setFontHeightInPoints((short) 12);
-        style.setFont(font);
-        style.setAlignment(HorizontalAlignment.CENTER);
-        style.setVerticalAlignment(VerticalAlignment.CENTER);
-        style.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
-        style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-        style.setBorderTop(BorderStyle.THIN);
-        style.setBorderBottom(BorderStyle.THIN);
-        style.setBorderLeft(BorderStyle.THIN);
-        style.setBorderRight(BorderStyle.THIN);
-        return style;
-    }
-
-    private CellStyle createDataStyle(Workbook workbook) {
-        CellStyle style = workbook.createCellStyle();
-        style.setAlignment(HorizontalAlignment.LEFT);
-        style.setVerticalAlignment(VerticalAlignment.CENTER);
-        style.setBorderTop(BorderStyle.THIN);
-        style.setBorderBottom(BorderStyle.THIN);
-        style.setBorderLeft(BorderStyle.THIN);
-        style.setBorderRight(BorderStyle.THIN);
-        return style;
-    }
-
-    public byte[] generateCakeExcel() throws IOException {
-        // 모든 Person 데이터 조회 (Cake 정보 포함)
-        List<Person> personList = personRepository.findAllWithCake();
-
-        // 엑셀 워크북 생성
-        Workbook workbook = new XSSFWorkbook();
-        Sheet sheet = workbook.createSheet("생일케이크신청목록");
-
-        // 헤더 스타일 설정
-        CellStyle headerStyle = createCakeHeaderStyle(workbook);
-        CellStyle dataStyle = createCakeDataStyle(workbook);
-        CellStyle centerStyle = createCakeCenterStyle(workbook);
-
-        // 헤더 행 생성 (상세주소 제거, 배송주소로 통합)
-        Row headerRow = sheet.createRow(0);
-        String[] headers = {"NO", "신청자", "사번", "부서", "케이크 종류", "배송일", "우편번호", "배송 주소", "연락처", "수령자"};
-
-        for (int i = 0; i < headers.length; i++) {
-            Cell cell = headerRow.createCell(i);
-            cell.setCellValue(headers[i]);
-            cell.setCellStyle(headerStyle);
-        }
-
-        // 데이터 행 생성
-        int rowIndex = 1;
-        for (Person person : personList) {
-            Row row = sheet.createRow(rowIndex);
-
-            // NO
-            Cell noCell = row.createCell(0);
-            noCell.setCellValue(rowIndex);
-            noCell.setCellStyle(centerStyle);
-
-            // 신청자
-            Cell nameCell = row.createCell(1);
-            nameCell.setCellValue(person.getName() != null ? person.getName() : "");
-            nameCell.setCellStyle(centerStyle);
-
-            // 사번
-            Cell employeeNumberCell = row.createCell(2);
-            employeeNumberCell.setCellValue(person.getEmployeeNumber() != null ? person.getEmployeeNumber() : "");
-            employeeNumberCell.setCellStyle(centerStyle);
-
-            // 부서
-            Cell departmentCell = row.createCell(3);
-            departmentCell.setCellValue(person.getDepartment() != null ? person.getDepartment() : "");
-            departmentCell.setCellStyle(centerStyle);
-
-            // Cake 정보가 있는 경우
-            if (person.getCake() != null) {
-                Cake cake = person.getCake();
-
-                // 케이크 종류
-                Cell cakeTypeCell = row.createCell(4);
-                cakeTypeCell.setCellValue(cake.getCakeType().getValue() != null ? cake.getCakeType().getValue().toString() : "");
-                cakeTypeCell.setCellStyle(centerStyle);
-
-                // 배송일
-                Cell deliveryDateCell = row.createCell(5);
-                if (cake.getDeliveryDate() != null) {
-                    deliveryDateCell.setCellValue(cake.getDeliveryDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
-                } else {
-                    deliveryDateCell.setCellValue("");
-                }
-                deliveryDateCell.setCellStyle(centerStyle);
-
-                // 우편번호
-                Cell postCodeCell = row.createCell(6);
-                postCodeCell.setCellValue(cake.getPostCode() != null ? cake.getPostCode() : "");
-                postCodeCell.setCellStyle(centerStyle);
-
-                // 배송 주소 (주소 + 상세주소 합친 것)
-                Cell addressCell = row.createCell(7);
-                String fullAddress = buildCakeFullAddress(cake);
-                addressCell.setCellValue(fullAddress);
-                addressCell.setCellStyle(dataStyle);
-
-                Cell phonCell = row.createCell(8);
-                phonCell.setCellValue(cake.getPerson().getPhone() != null ? cake.getPerson().getPhone() : "");
-                phonCell.setCellStyle(centerStyle);
-
-                // 수령자
-                Cell receiverCell = row.createCell(9);
-                receiverCell.setCellValue(cake.getReceiver() != null ? cake.getReceiver() : "");
-                receiverCell.setCellStyle(centerStyle);
-
-            } else {
-                // Cake 정보가 없는 경우 빈 셀 생성 (컬럼이 하나 줄어들어서 4~8번까지)
-                for (int i = 4; i <= 9; i++) {
-                    Cell emptyCell = row.createCell(i);
-                    emptyCell.setCellValue("");
-                    emptyCell.setCellStyle(dataStyle);
-                }
-            }
-
-            rowIndex++;
-        }
-
-        // 열 너비 설정
-        setCakeColumnWidths(sheet, headers.length);
-
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        workbook.write(outputStream);
-        workbook.close();
-
-        return outputStream.toByteArray();
-    }
-
-    private String buildCakeFullAddress(Cake cake) {
-        StringBuilder address = new StringBuilder();
-
-        if (cake.getAddress() != null && !cake.getAddress().isEmpty()) {
-            address.append(cake.getAddress());
-        }
-
-        if (cake.getDetail() != null && !cake.getDetail().isEmpty()) {
-            if (address.length() > 0) {
-                address.append(" ");
-            }
-            address.append(cake.getDetail());
-        }
-
-        return address.toString();
-    }
-
-    private CellStyle createCakeHeaderStyle(Workbook workbook) {
-        CellStyle style = workbook.createCellStyle();
-        Font font = workbook.createFont();
-        font.setBold(true);
-        font.setFontHeightInPoints((short) 12);
-        style.setFont(font);
-        style.setAlignment(HorizontalAlignment.CENTER);
-        style.setVerticalAlignment(VerticalAlignment.CENTER);
-        style.setFillForegroundColor(IndexedColors.LIGHT_YELLOW.getIndex());
-        style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-        style.setBorderTop(BorderStyle.THIN);
-        style.setBorderBottom(BorderStyle.THIN);
-        style.setBorderLeft(BorderStyle.THIN);
-        style.setBorderRight(BorderStyle.THIN);
-        return style;
-    }
-
-    private CellStyle createCakeDataStyle(Workbook workbook) {
-        CellStyle style = workbook.createCellStyle();
-        style.setAlignment(HorizontalAlignment.LEFT);
-        style.setVerticalAlignment(VerticalAlignment.CENTER);
-        style.setBorderTop(BorderStyle.THIN);
-        style.setBorderBottom(BorderStyle.THIN);
-        style.setBorderLeft(BorderStyle.THIN);
-        style.setBorderRight(BorderStyle.THIN);
-        style.setWrapText(true); // 텍스트 줄바꿈
-        return style;
-    }
-
-    private CellStyle createCakeCenterStyle(Workbook workbook) {
-        CellStyle style = createCakeDataStyle(workbook);
-        style.setAlignment(HorizontalAlignment.CENTER);
-        return style;
     }
 
     private void setCakeColumnWidths(Sheet sheet, int columnCount) {
         for (int i = 0; i < columnCount; i++) {
-            sheet.autoSizeColumn(i);
-
             if (sheet.getColumnWidth(i) < 2000) {
                 sheet.setColumnWidth(i, 2000);
             }
-
             switch (i) {
                 case 0: // NO
                     sheet.setColumnWidth(i, 1500);
@@ -517,8 +286,8 @@ public class PersonService {
                 case 6: // 우편번호
                     sheet.setColumnWidth(i, 3000);
                     break;
-                case 7: // 배송 주소 (합쳐진 주소)
-                    sheet.setColumnWidth(i, 10000);
+                case 7: // 배송 주소
+                    sheet.setColumnWidth(i, 15000);
                     break;
                 case 8: // 연락처
                     sheet.setColumnWidth(i, 4000);
@@ -530,90 +299,106 @@ public class PersonService {
         }
     }
 
+    private void setGiftColumnWidths(Sheet sheet, int columnCount) {
+        for (int i = 0; i < columnCount; i++) {
+            switch (i) {
+                case 0: // NO
+                    sheet.setColumnWidth(i, 1500);
+                    break;
+                case 1: // 신청자
+                    sheet.setColumnWidth(i, 3000);
+                    break;
+                case 2: // 사번
+                    sheet.setColumnWidth(i, 3500);
+                    break;
+                case 3: // 부서
+                    sheet.setColumnWidth(i, 4000);
+                    break;
+                case 4: // 우편번호
+                    sheet.setColumnWidth(i, 2800);
+                    break;
+                case 5: // 배송 주소
+                    sheet.setColumnWidth(i, 15000);
+                    break;
+                case 6: // 연락처
+                    sheet.setColumnWidth(i, 4000);
+                    break;
+                case 7: // 수령자
+                    sheet.setColumnWidth(i, 3000);
+                    break;
+            }
+        }
+    }
+
+    private String buildFullAddress(String address, String detail) {
+        StringBuilder fullAddress = new StringBuilder();
+
+        if (address != null && !address.isEmpty()) {
+            fullAddress.append(address);
+        }
+
+        if (detail != null && !detail.isEmpty()) {
+            if (fullAddress.length() > 0) {
+                fullAddress.append(" ");
+            }
+            fullAddress.append(detail);
+        }
+
+        return fullAddress.toString();
+    }
+
+    private enum ExcelType {
+        HOLIDAY, CAKE, GIFT
+    }
+
+    // Excel 생성 메서드들
+    public byte[] generateHolidayExcel() throws IOException {
+        List<Person> personList = personRepository.findAllWithHoliday();
+        String[] headers = {"NO", "신청자", "사번", "선물 선택", "우편번호", "배송 주소", "연락처", "수령자"};
+
+        return generateExcel(personList, "명절선물신청목록", headers, ExcelType.HOLIDAY, this::fillHolidayRow);
+    }
+
+    public byte[] generateCakeExcel() throws IOException {
+        List<Person> personList = personRepository.findAllWithCake();
+        String[] headers = {"NO", "신청자", "사번", "부서", "케이크 종류", "배송일", "우편번호", "배송 주소", "연락처", "수령자"};
+
+        return generateExcel(personList, "생일케이크신청목록", headers, ExcelType.CAKE, this::fillCakeRow);
+    }
+
     public byte[] generateGiftExcel() throws IOException {
-        // 모든 Person 데이터 조회 (Cake 정보 포함)
         List<Person> personList = personRepository.findAllWithGift();
-
-        // 엑셀 워크북 생성
-        Workbook workbook = new XSSFWorkbook();
-        Sheet sheet = workbook.createSheet("격려품신청목록");
-
-        // 헤더 스타일 설정
-        CellStyle headerStyle = createGiftHeaderStyle(workbook);
-        CellStyle dataStyle = createGiftDataStyle(workbook);
-        CellStyle centerStyle = createGiftCenterStyle(workbook);
-
-        // 헤더 행 생성 (상세주소 제거, 배송주소로 통합)
-        Row headerRow = sheet.createRow(0);
         String[] headers = {"NO", "신청자", "사번", "부서", "우편번호", "배송 주소", "연락처", "수령자"};
 
+        return generateExcel(personList, "격려품신청목록", headers, ExcelType.GIFT, this::fillGiftRow);
+    }
+
+    private byte[] generateExcel(List<Person> personList, String sheetName, String[] headers,
+                                 ExcelType type, RowFiller rowFiller) throws IOException {
+
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet(sheetName);
+
+        CellStyle headerStyle = createHeaderStyle(workbook);
+        CellStyle dataStyle = createDataStyle(workbook);
+        CellStyle centerStyle = createCenterStyle(workbook);
+
+        // 헤더 행 생성
+        Row headerRow = sheet.createRow(0);
         for (int i = 0; i < headers.length; i++) {
-            Cell cell = headerRow.createCell(i);
-            cell.setCellValue(headers[i]);
-            cell.setCellStyle(headerStyle);
+            createCell(headerRow, i, headers[i], headerStyle);
         }
 
         // 데이터 행 생성
         int rowIndex = 1;
         for (Person person : personList) {
             Row row = sheet.createRow(rowIndex);
-
-            // NO
-            Cell noCell = row.createCell(0);
-            noCell.setCellValue(rowIndex);
-            noCell.setCellStyle(centerStyle);
-
-            // 신청자
-            Cell nameCell = row.createCell(1);
-            nameCell.setCellValue(person.getName() != null ? person.getName() : "");
-            nameCell.setCellStyle(centerStyle);
-
-            // 사번
-            Cell employeeNumberCell = row.createCell(2);
-            employeeNumberCell.setCellValue(person.getEmployeeNumber() != null ? person.getEmployeeNumber() : "");
-            employeeNumberCell.setCellStyle(centerStyle);
-
-            // 부서
-            Cell departmentCell = row.createCell(3);
-            departmentCell.setCellValue(person.getDepartment() != null ? person.getDepartment() : "");
-            departmentCell.setCellStyle(centerStyle);
-
-            // Cake 정보가 있는 경우
-            if (person.getGift() != null) {
-                Gift gift = person.getGift();
-                // 우편번호
-                Cell postCodeCell = row.createCell(4);
-                postCodeCell.setCellValue(gift.getPostCode() != null ? gift.getPostCode() : "");
-                postCodeCell.setCellStyle(centerStyle);
-
-                // 배송 주소 (주소 + 상세주소 합친 것)
-                Cell addressCell = row.createCell(5);
-                String fullAddress = buildGiftFullAddress(gift);
-                addressCell.setCellValue(fullAddress);
-                addressCell.setCellStyle(dataStyle);
-
-                Cell phonCell = row.createCell(6);
-                phonCell.setCellValue(gift.getPerson().getPhone() != null ? gift.getPerson().getPhone() : "");
-                phonCell.setCellStyle(centerStyle);
-
-                // 수령자
-                Cell receiverCell = row.createCell(7);
-                receiverCell.setCellValue(gift.getReceiver() != null ? gift.getReceiver() : "");
-                receiverCell.setCellStyle(centerStyle);
-
-            } else {
-                for (int i = 4; i <= 9; i++) {
-                    Cell emptyCell = row.createCell(i);
-                    emptyCell.setCellValue("");
-                    emptyCell.setCellStyle(dataStyle);
-                }
-            }
-
+            rowFiller.fillRow(row, person, rowIndex, dataStyle, centerStyle);
             rowIndex++;
         }
 
         // 열 너비 설정
-        setCakeColumnWidths(sheet, headers.length);
+        setColumnWidths(sheet, type, headers.length);
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         workbook.write(outputStream);
@@ -622,97 +407,75 @@ public class PersonService {
         return outputStream.toByteArray();
     }
 
-    private String buildGiftFullAddress(Gift gift) {
-        StringBuilder address = new StringBuilder();
+    @FunctionalInterface
+    private interface RowFiller {
+        void fillRow(Row row, Person person, int rowIndex, CellStyle dataStyle, CellStyle centerStyle);
+    }
 
-        if (gift.getAddress() != null && !gift.getAddress().isEmpty()) {
-            address.append(gift.getAddress());
-        }
+    private void fillHolidayRow(Row row, Person person, int rowIndex, CellStyle dataStyle, CellStyle centerStyle) {
+        // 기본 정보
+        createNumberCell(row, 0, rowIndex, centerStyle);
+        createCell(row, 1, person.getName(), centerStyle);
+        createCell(row, 2, person.getEmployeeNumber(), centerStyle);
 
-        if (gift.getDetail() != null && !gift.getDetail().isEmpty()) {
-            if (address.length() > 0) {
-                address.append(" ");
+        if (person.getHoliday() != null) {
+            Holiday holiday = person.getHoliday();
+            String presentName = holiday.getPresent() != null ? holiday.getPresent().getValue() : "";
+            createCell(row, 3, presentName, centerStyle);
+            createCell(row, 4, holiday.getPostCode(), centerStyle);
+            createCell(row, 5, buildFullAddress(holiday.getAddress(), holiday.getDetail()), dataStyle);
+            createCell(row, 6, person.getPhone(), centerStyle);
+            createCell(row, 7, holiday.getReceiver(), centerStyle);
+        } else {
+            for (int i = 3; i <= 7; i++) {
+                createCell(row, i, "", dataStyle);
             }
-            address.append(gift.getDetail());
         }
-
-        return address.toString();
     }
 
-    private CellStyle createGiftHeaderStyle(Workbook workbook) {
-        CellStyle style = workbook.createCellStyle();
-        Font font = workbook.createFont();
-        font.setBold(true);
-        font.setFontHeightInPoints((short) 12);
-        style.setFont(font);
-        style.setAlignment(HorizontalAlignment.CENTER);
-        style.setVerticalAlignment(VerticalAlignment.CENTER);
-        style.setFillForegroundColor(IndexedColors.LIGHT_YELLOW.getIndex());
-        style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-        style.setBorderTop(BorderStyle.THIN);
-        style.setBorderBottom(BorderStyle.THIN);
-        style.setBorderLeft(BorderStyle.THIN);
-        style.setBorderRight(BorderStyle.THIN);
-        return style;
-    }
+    private void fillCakeRow(Row row, Person person, int rowIndex, CellStyle dataStyle, CellStyle centerStyle) {
+        // 기본 정보
+        createNumberCell(row, 0, rowIndex, centerStyle);
+        createCell(row, 1, person.getName(), centerStyle);
+        createCell(row, 2, person.getEmployeeNumber(), centerStyle);
+        createCell(row, 3, person.getDepartment(), centerStyle);
 
-    private CellStyle createGiftDataStyle(Workbook workbook) {
-        CellStyle style = workbook.createCellStyle();
-        style.setAlignment(HorizontalAlignment.LEFT);
-        style.setVerticalAlignment(VerticalAlignment.CENTER);
-        style.setBorderTop(BorderStyle.THIN);
-        style.setBorderBottom(BorderStyle.THIN);
-        style.setBorderLeft(BorderStyle.THIN);
-        style.setBorderRight(BorderStyle.THIN);
-        style.setWrapText(true); // 텍스트 줄바꿈
-        return style;
-    }
+        if (person.getCake() != null) {
+            Cake cake = person.getCake();
+            String cakeType = cake.getCakeType() != null && cake.getCakeType().getValue() != null
+                    ? cake.getCakeType().getValue().toString() : "";
+            createCell(row, 4, cakeType, centerStyle);
 
-    private CellStyle createGiftCenterStyle(Workbook workbook) {
-        CellStyle style = createCakeDataStyle(workbook);
-        style.setAlignment(HorizontalAlignment.CENTER);
-        return style;
-    }
-
-    private void setGiftColumnWidths(Sheet sheet, int columnCount) {
-        for (int i = 0; i < columnCount; i++) {
-            sheet.autoSizeColumn(i);
-
-            if (sheet.getColumnWidth(i) < 2000) {
-                sheet.setColumnWidth(i, 2000);
+            String deliveryDate = cake.getDeliveryDate() != null
+                    ? cake.getDeliveryDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) : "";
+            createCell(row, 5, deliveryDate, centerStyle);
+            createCell(row, 6, cake.getPostCode(), centerStyle);
+            createCell(row, 7, buildFullAddress(cake.getAddress(), cake.getDetail()), dataStyle);
+            createCell(row, 8, person.getPhone(), centerStyle);
+            createCell(row, 9, cake.getReceiver(), centerStyle);
+        } else {
+            for (int i = 4; i <= 9; i++) {
+                createCell(row, i, "", dataStyle);
             }
+        }
+    }
 
-            switch (i) {
-                case 0: // NO
-                    sheet.setColumnWidth(i, 1500);
-                    break;
-                case 1: // 신청자
-                    sheet.setColumnWidth(i, 3000);
-                    break;
-                case 2: // 사번
-                    sheet.setColumnWidth(i, 3500);
-                    break;
-                case 3: // 부서
-                    sheet.setColumnWidth(i, 4000);
-                    break;
-                case 4: // 케이크 종류
-                    sheet.setColumnWidth(i, 5500);
-                    break;
-                case 5: // 배송일
-                    sheet.setColumnWidth(i, 3500);
-                    break;
-                case 6: // 우편번호
-                    sheet.setColumnWidth(i, 3000);
-                    break;
-                case 7: // 배송 주소 (합쳐진 주소)
-                    sheet.setColumnWidth(i, 10000);
-                    break;
-                case 8: // 연락처
-                    sheet.setColumnWidth(i, 4000);
-                    break;
-                case 9: // 수령자
-                    sheet.setColumnWidth(i, 3000);
-                    break;
+    private void fillGiftRow(Row row, Person person, int rowIndex, CellStyle dataStyle, CellStyle centerStyle) {
+        // 기본 정보
+        createNumberCell(row, 0, rowIndex, centerStyle);
+        createCell(row, 1, person.getName(), centerStyle);
+        createCell(row, 2, person.getEmployeeNumber(), centerStyle);
+        createCell(row, 3, person.getDepartment(), centerStyle);
+
+        if (person.getGift() != null) {
+            Gift gift = person.getGift();
+            createCell(row, 4, gift.getPostCode(), centerStyle);
+            createCell(row, 5, buildFullAddress(gift.getAddress(), gift.getDetail()), dataStyle);
+            createCell(row, 6, person.getPhone(), centerStyle);
+            createCell(row, 7, gift.getReceiver(), centerStyle);
+        } else {
+            for (int i = 4; i <= 7; i++) {
+                createCell(row, i, "", dataStyle);
             }
         }
     }

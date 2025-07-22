@@ -27,6 +27,15 @@
                     <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z"/>
                 </svg>
             </div>
+
+            <div class="link excel-download-link encouragement-download" id="encouragementExcelDownload">
+                <span class="linkText">💪 격려품 신청 목록 다운로드</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
+                     class="bi bi-download" viewBox="0 0 16 16">
+                    <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/>
+                    <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z"/>
+                </svg>
+            </div>
         </div>
 
         <div class="navigation-links">
@@ -47,6 +56,15 @@
                           d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8m15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0M4.5 7.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5z"/>
                 </svg>
             </a>
+
+            <a href="/encouragement/list" class="link nav-link">
+                <span class="linkText">격려품 목록으로 이동</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                     class="bi bi-arrow-right-circle" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd"
+                          d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8m15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0M4.5 7.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5z"/>
+                </svg>
+            </a>
         </div>
     </div>
 
@@ -59,7 +77,7 @@
                 <div class="info-grid">
                     <div class="info-item">
                         <div class="info-label">포함 정보</div>
-                        <div class="info-value">신청자명, 사번, 선물종류, 우편번호, 배송주소, 연락처, 수령자</div>
+                        <div class="info-value">신청자명, 사번, 부서, 선물종류, 우편번호, 배송주소, 연락처, 수령자</div>
                     </div>
                     <div class="info-item">
                         <div class="info-label">파일명</div>
@@ -74,11 +92,26 @@
                 <div class="info-grid">
                     <div class="info-item">
                         <div class="info-label">포함 정보</div>
-                        <div class="info-value">신청자명, 사번, 케이크 종류, 배송일, 우편번호, 배송주소, 연락처, 수령자</div>
+                        <div class="info-value">신청자명, 사번, 부서, 케이크 종류, 배송일, 우편번호, 배송주소, 연락처, 수령자</div>
                     </div>
                     <div class="info-item">
                         <div class="info-label">파일명</div>
                         <div class="info-value">생일케이크신청목록_<span class="currentDate"></span>.xlsx</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 격려품 정보 -->
+            <div class="form-section encouragement-section">
+                <div class="form-section-title">💪 격려품 다운로드 정보</div>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">포함 정보</div>
+                        <div class="info-value">신청자명, 사번, 부서, 우편번호, 배송주소, 연락처, 수령자</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">파일명</div>
+                        <div class="info-value">격려품신청목록_<span class="currentDate"></span>.xlsx</div>
                     </div>
                 </div>
             </div>
@@ -127,6 +160,12 @@
                 downloadExcel('/excel/cake', '생일케이크');
             });
 
+            // 격려품 엑셀 다운로드
+            $('#encouragementExcelDownload').click(function (e) {
+                e.preventDefault();
+                downloadExcel('/excel/gift', '격려품');
+            });
+
             // 엑셀 다운로드 함수
             function downloadExcel(url, type) {
                 const loadingElement = $('#loading');
@@ -164,14 +203,14 @@
     <style>
         .download-buttons {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr 1fr 1fr;
             gap: 20px;
             margin-bottom: 30px;
         }
 
         .navigation-links {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr 1fr 1fr;
             gap: 16px;
             margin-top: 20px;
         }
@@ -199,6 +238,7 @@
 
         .holiday-download:hover {
             background: linear-gradient(180deg, #6ba0c7, #5b8fb0);
+            border-color: #6ba0c7;
             box-shadow: 0 4px 12px rgba(127, 179, 211, 0.3);
         }
 
@@ -210,6 +250,18 @@
         .cake-download:hover {
             background: linear-gradient(180deg, #4a7ba3, #3d6b8f);
             box-shadow: 0 4px 12px rgba(90, 139, 184, 0.3);
+            border-color: #4a7ba3;
+        }
+
+        .encouragement-download {
+            background: linear-gradient(180deg, #3a55aa, #2f4387);
+            border-color: #2a4597;
+        }
+
+        .encouragement-download:hover {
+            background: linear-gradient(180deg, #2a3c7a, #26336a);
+            border-color: #2a3c7a;
+            box-shadow: 0 4px 12px rgba(65, 105, 225, 0.3);
         }
 
         .nav-link {
@@ -228,7 +280,7 @@
 
         .info-sections {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr 1fr 1fr;
             gap: 24px;
             margin-bottom: 20px;
         }
@@ -238,7 +290,7 @@
         }
 
         .holiday-section {
-            border-left-color: #3f85cf;
+            border-left-color: #3f85cf !important;
         }
 
         .holiday-section .form-section-title {
@@ -250,7 +302,7 @@
         }
 
         .cake-section {
-            border-left-color: #0f4a9e;
+            border-left-color: #0f4a9e !important;
         }
 
         .cake-section .form-section-title {
@@ -259,6 +311,18 @@
 
         .cake-section .info-label {
             color: #0f4a9e;
+        }
+
+        .encouragement-section {
+            border-left-color: #263d75 !important;
+        }
+
+        .encouragement-section .form-section-title {
+            color: #263d75;
+        }
+
+        .encouragement-section .info-label {
+            color: #263d75;
         }
 
         .form-section {
@@ -380,11 +444,22 @@
         /* 태블릿 반응형 */
         @media (max-width: 992px) and (min-width: 769px) {
             .download-buttons {
+                grid-template-columns: 1fr 1fr;
                 gap: 16px;
             }
 
+            .navigation-links {
+                grid-template-columns: 1fr 1fr;
+                gap: 12px;
+            }
+
             .info-sections {
+                grid-template-columns: 1fr 1fr;
                 gap: 20px;
+            }
+
+            .encouragement-section {
+                grid-column: 1 / -1;
             }
         }
     </style>

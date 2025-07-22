@@ -23,7 +23,7 @@ public class ExcelController {
     private final PersonService personService;
     private static final String ADMIN_PASSWORD = "IDIS2025";
     private static final String ADMIN_SESSION_KEY = "admin_authenticated";
-    @GetMapping("/")
+    @GetMapping("")
     public String adminLoginPage(HttpSession session) {
         // 이미 인증된 경우 바로 엑셀 페이지로
         if (Boolean.TRUE.equals(session.getAttribute(ADMIN_SESSION_KEY))) {

@@ -101,9 +101,9 @@
                 const $this = $(this);
                 const phone = $this.data('phone');
                 const personId = $this.data('id');
-                const hasCake = $this.data('cake') != null;
+                const hasGift = $this.data('gift') != null;
 
-                if (hasCake) {
+                if (hasGift) {
                     showConfirmModal(
                         "이미 등록된 배송정보가 있습니다. 수정하시겠습니까?",
                         () => openCustomAuthModal(phone, personId),
