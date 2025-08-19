@@ -1,6 +1,5 @@
 package com.iris.iris.dto;
 
-import com.iris.iris.entity.CakeType;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -20,6 +19,4 @@ public class CakeDTO {
     private String receiver;
 
     private Long personId;
-
-    private CakeType cakeType;
 }

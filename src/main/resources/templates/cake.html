@@ -65,7 +65,7 @@
             </li>
         </ul>
     </div>
-    <!-- 토스트 스타일 인증 모달 -->
+    <!-- 휴대폰 번호 직접 입력 인증 모달 -->
     <div class="auth-toast" id="customAuthModal">
         <div class="auth-toast-content">
             <div class="auth-toast-icon">
@@ -73,16 +73,12 @@
             </div>
             <div class="auth-toast-body">
                 <h5 class="auth-toast-title">본인인증</h5>
+                <p class="auth-description">본인확인을 위해 휴대폰 번호를 입력해주세요.</p>
                 <div class="auth-form-section">
                     <div class="floating-label input-group">
-                        <input type="text" class="form-control" id="modal-phone-input" readonly placeholder=" ">
-                        <label>휴대폰 번호</label>
-                        <button class="but" type="button" id="sendBtn">발송</button>
-                    </div>
-                    <div class="floating-label input-group mt-3 d-none" id="authBox">
-                        <input type="text" class="form-control" placeholder=" " id="verKey">
-                        <label>인증번호</label>
-                        <button class="but but_dark" type="button" id="checkBtn">확인</button>
+                        <input type="text" class="form-control" id="modal-phone-input" placeholder=" " maxlength="11">
+                        <label>휴대폰 번호 (- 없이 입력)</label>
+                        <button class="but but_dark" type="button" id="verifyBtn">인증</button>
                     </div>
                 </div>
             </div>
@@ -115,12 +111,11 @@
             });
 
             function openCustomAuthModal(phone, personId) {
-                $('#sendBtn').attr('data-phone', phone);
-                $('#checkBtn').data('id', personId);
-                $('#modal-phone-input').val(phone);
-                $('#authBox').addClass('d-none');
-
+                $('#verifyBtn').data('person-id', personId);
+                $('#verifyBtn').data('correct-phone', phone);
+                $('#modal-phone-input').val(''); // 입력 필드 초기화
                 $('#customAuthModal').addClass('show');
+                $('#modal-phone-input').focus(); // 포커스 설정
             }
 
             function closeCustomAuthModal() {
@@ -141,60 +136,66 @@
                 }
             });
 
-            $('#sendBtn').click(function () {
-                $.ajax({
-                    type: "POST",
-                    url: "/sendSMS",
-                    contentType: 'application/json',
-                    data: JSON.stringify($(this).data('phone')),
-                    success: function (data) {
-                        showToast(data);
-                        $('#authBox').hide().removeClass('d-none').slideDown();
-                    },
-                    error: function (error) {
-                        console.log(error)
-                    }
-                });
+            // 휴대폰 번호 입력 시 숫자만 허용
+            $('#modal-phone-input').on('input', function() {
+                this.value = this.value.replace(/[^0-9]/g, '');
             });
 
-            $('#checkBtn').on('click keydown', function (e) {
-                if (e.type === 'click' || e.which === 13) {
-                    const personId = $(this).data('id');
-                    const verKey = $('#verKey').val();
+            // 휴대폰 번호 검증 버튼 클릭
+            $('#verifyBtn').click(function () {
+                const inputPhone = $('#modal-phone-input').val().trim();
+                const correctPhone = $(this).data('correct-phone');
+                const personId = $(this).data('person-id');
 
-                    if (!verKey.trim()) {
-                        showToast('인증번호를 입력해주세요.', 'error');
-                        $('#verKey').focus();
-                        return;
-                    }
+                if (!inputPhone) {
+                    showToast('휴대폰 번호를 입력해주세요.', 'error');
+                    $('#modal-phone-input').focus();
+                    return;
+                }
 
+                if (inputPhone.length !== 11) {
+                    showToast('올바른 휴대폰 번호를 입력해주세요. (11자리)', 'error');
+                    $('#modal-phone-input').focus();
+                    return;
+                }
+
+                // 휴대폰 번호 비교 (하이픈 제거 후 비교)
+                const dbPhone = correctPhone.replace(/[-\s]/g, ''); // 하이픈, 공백 제거
+
+                  if (inputPhone === dbPhone) {
+                    // 서버에 인증 상태 저장 요청
                     $.ajax({
                         type: "POST",
-                        url: "/checkVerKey",
+                        url: "/giveSession",
                         contentType: 'application/json',
-                        data: JSON.stringify(verKey),
+                        data: JSON.stringify({ verified: true }),
                         success: function (data) {
                             if (data === "인증이 완료되었습니다.") {
                                 showToast(data, 'success');
+                                closeCustomAuthModal();
                                 setTimeout(() => {
                                     location.href = "/cake/save/" + personId;
-                                }, 1000); // 토스트를 잠깐 보여준 후 이동
+                                }, 1000);
                             } else {
                                 showToast(data, 'error');
                             }
                         },
                         error: function (error) {
                             console.log(error);
-                            showToast('인증 확인 중 오류가 발생했습니다.', 'error');
+                            showToast('인증 처리 중 오류가 발생했습니다.', 'error');
                         }
                     });
+                } else {
+                    showToast('휴대폰 번호가 일치하지 않습니다.', 'error');
+                    $('#modal-phone-input').focus();
                 }
             });
 
-            $('#verKey').keypress(function (e) {
+            // 휴대폰 번호 입력 필드에서 엔터키
+            $('#modal-phone-input').keypress(function (e) {
                 if (e.which === 13) {
                     e.preventDefault();
-                    $('#checkBtn').trigger('click');
+                    $('#verifyBtn').trigger('click');
                 }
             });
 

@@ -1,16 +1,11 @@
 package com.iris.iris.controller;
 
-import com.iris.iris.dto.CakeDTO;
 import com.iris.iris.dto.GiftDTO;
-import com.iris.iris.entity.Cake;
-import com.iris.iris.entity.CakeType;
 import com.iris.iris.entity.Gift;
 import com.iris.iris.entity.Person;
 import com.iris.iris.service.PersonService;
 import jakarta.servlet.http.HttpSession;
-import lombok.RequiredArgsConstructor;
-import org.springframework.boot.autoconfigure.info.ProjectInfoProperties;
-import org.springframework.data.domain.Page;
+import lombok.RequiredArgsConstructor;import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;

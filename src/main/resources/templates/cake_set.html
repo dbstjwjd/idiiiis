@@ -59,55 +59,12 @@
                         </div>
                     </div>
 
-                    <!-- 케이크 종류 선택 -->
-                    <div class="form-row">
-                        <div class="floating-label">
-                            <select class="form-select" name="cakeType" id="cakeType" required>
-                                <option value="" disabled th:selected="${cake == null}" hidden></option>
-                                <option th:each="cakeType : ${cakeTypes}"
-                                        th:value="${cakeType.name()}"
-                                        th:text="${cakeType.value}"
-                                        th:selected="${cake != null && cake.cakeType == cakeType.name()}">
-                                </option>
-                            </select>
-                            <label for="cakeType">종류</label>
-                        </div>
-                    </div>
-
                     <!-- 배송 희망일 -->
                     <div class="form-row">
                         <div class="floating-label">
                             <input type="date" class="form-control" id="deliveryDate" name="deliveryDate"
                                    placeholder=" " th:value="${cake != null ? cake.deliveryDate : ''}" required/>
                             <label for="deliveryDate">배송 희망일</label>
-                        </div>
-                    </div>
-
-                    <!-- 우편번호 -->
-                    <div class="form-row">
-                        <div class="floating-label input-group">
-                            <input type="text" class="form-control" id="postCode" name="postCode" readonly
-                                   placeholder=" " th:value="${cake != null ? cake.postCode : ''}"/>
-                            <label for="postCode">우편번호</label>
-                            <button class="but" type="button" id="searchBtn">우편번호 검색</button>
-                        </div>
-                    </div>
-
-                    <!-- 기본 주소 -->
-                    <div class="form-row">
-                        <div class="floating-label">
-                            <input type="text" class="form-control" id="address" name="address" readonly
-                                   placeholder=" " th:value="${cake != null ? cake.address : ''}"/>
-                            <label for="address">기본주소</label>
-                        </div>
-                    </div>
-
-                    <!-- 상세 주소 -->
-                    <div class="form-row">
-                        <div class="floating-label">
-                            <input type="text" class="form-control" id="detail" name="detail" placeholder=" "
-                                   th:value="${cake != null ? cake.detail : ''}"/>
-                            <label for="detail">상세주소</label>
                         </div>
                     </div>
                 </div>
@@ -174,19 +131,10 @@
                 } else if ($('#division').val() === null || $('#division').val() === '') {
                     showToast('기념일 구분을 입력해주세요.', 'error');
                     $('html, body').animate({scrollTop: 0}, 500);
-                } else if ($('#cakeType').val() === null || $('#cakeType').val() === '') {
-                    showToast('종류를 선택해주세요.', 'error');
-                    $('html, body').animate({scrollTop: 0}, 500);
-                } else if ($('#deliveryDate').val().trim() === '') {
+                }  else if ($('#deliveryDate').val().trim() === '') {
                     showToast('배송 희망일을 선택해주세요.', 'error');
                     $('html, body').animate({scrollTop: 0}, 500);
-                } else if ($('#postCode').val().trim() === '' || $('#address').val().trim() === '') {
-                    showToast('주소를 입력해주세요.', 'error');
-                    $('html, body').animate({scrollTop: 0}, 500);
-                } else if ($('#detail').val().trim() === '') {
-                    showToast('상세주소를 입력해주세요.', 'error');
-                    $('html, body').animate({scrollTop: 0}, 500);
-                } else {
+                }  else {
                     var selectedDate = $('#deliveryDate').val();
 
                     if (!selectedDate || selectedDate.indexOf('2026') !== 0) {
@@ -235,9 +183,6 @@
             </div>
 
             <div class="delivery-info-section">
-                <div class="delivery-section-title">
-                    <i class="fas fa-birthday-cake"></i>케이크 정보
-                </div>
                 <div class="delivery-info-grid">
                     <div class="delivery-info-item">
                         <div class="delivery-info-label">수령인</div>
@@ -248,40 +193,11 @@
                         <div class="delivery-info-value" id="confirmDivision"></div>
                     </div>
                     <div class="delivery-info-item">
-                        <div class="delivery-info-label">종류</div>
-                        <div class="delivery-info-value success" id="confirmCakeType"></div>
-                    </div>
-                    <div class="delivery-info-item">
-                        <div class="delivery-info-label">배송희망일</div>
+                        <div class="delivery-info-label">배송일</div>
                         <div class="delivery-info-value highlight" id="confirmDeliveryDate"></div>
                     </div>
                 </div>
             </div>
-
-            <div class="delivery-info-section">
-                <div class="delivery-section-title">
-                    <i class="fas fa-map-marker-alt"></i>배송 주소
-                </div>
-                <div class="delivery-info-grid">
-                    <div class="delivery-info-item">
-                        <div class="delivery-info-label">우편번호</div>
-                        <div class="delivery-info-value" id="confirmPostCode"></div>
-                    </div>
-                    <div class="delivery-info-item" style="grid-column: 1 / -1;">
-                        <div class="delivery-info-label">기본주소</div>
-                        <div class="delivery-info-value" id="confirmAddress"></div>
-                    </div>
-                    <div class="delivery-info-item" style="grid-column: 1 / -1;">
-                        <div class="delivery-info-label">상세주소</div>
-                        <div class="delivery-info-value" id="confirmDetail"></div>
-                    </div>
-                </div>
-                <div class="delivery-full-address">
-                    <i class="fas fa-home" style="margin-right: 8px;"></i>
-                    <span id="confirmFullAddress"></span>
-                </div>
-            </div>
-
             <div class="delivery-final-warning">
                 <i class="fas fa-info-circle" style="margin-right: 8px;"></i>
                 위 정보가 정확한지 다시 한번 확인해주세요. 확인 후 저장 버튼을 눌러주세요.
@@ -307,11 +223,7 @@
                 $('#confirmName').text($('input[name="name"]').val());
                 $('#confirmReceiver').text($('#receiver').val());
                 $('#confirmDivision').text($('#division').val());
-                $('#confirmCakeType').text($('#cakeType option:selected').text());
                 $('#confirmDeliveryDate').text($('#deliveryDate').val());
-                $('#confirmPostCode').text($('#postCode').val());
-                $('#confirmAddress').text($('#address').val());
-                $('#confirmDetail').text($('#detail').val());
 
                 var fullAddress = '(' + $('#postCode').val() + ') ' + $('#address').val() + ' ' + $('#detail').val();
                 $('#confirmFullAddress').text(fullAddress);

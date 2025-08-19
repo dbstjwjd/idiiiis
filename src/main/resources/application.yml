@@ -3,9 +3,9 @@ spring:
     name: IRIS
   
   datasource:
-    url: jdbc:mysql://localhost:3306/idis?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
-    username: root
-    password:
+    url: jdbc:mysql://52.79.70.215:3306/idis?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: idis
+    password: Idisidis2025!
     driver-class-name: com.mysql.cj.jdbc.Driver
     
   jpa:
@@ -23,6 +23,3 @@ logging:
     org.hibernate.SQL: debug
     org.hibernate.type: trace
 
-
-server:
-  port: 8098

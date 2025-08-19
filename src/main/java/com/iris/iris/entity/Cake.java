@@ -17,18 +17,9 @@ public class Cake {
 
     private LocalDate deliveryDate;
 
-    private String postCode;
-
-    private String address;
-
-    private String detail;
-
     private String division;
 
     private String receiver;
-
-    @Enumerated(EnumType.STRING)
-    private CakeType cakeType;
 
     @OneToOne
     @JoinColumn(name = "person_id")

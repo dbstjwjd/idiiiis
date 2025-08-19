@@ -3,6 +3,7 @@ package com.iris.iris.service;
 import com.iris.iris.dto.CakeDTO;
 import com.iris.iris.dto.GiftDTO;
 import com.iris.iris.dto.HolidayDTO;
+import com.iris.iris.dto.PersonDTO;
 import com.iris.iris.entity.Cake;
 import com.iris.iris.entity.Gift;
 import com.iris.iris.entity.Holiday;
@@ -69,10 +70,6 @@ public class PersonService {
 
         Cake cake = new Cake();
         cake.setReceiver(cakeDTO.getReceiver());
-        cake.setAddress(cakeDTO.getAddress());
-        cake.setDetail(cakeDTO.getDetail());
-        cake.setCakeType(cakeDTO.getCakeType());
-        cake.setPostCode(cakeDTO.getPostCode());
         cake.setDivision(cakeDTO.getDivision());
         cake.setDeliveryDate(cakeDTO.getDeliveryDate());
         cake.setPerson(person);
@@ -144,10 +141,6 @@ public class PersonService {
 
     public void modifyCake(Cake cake, CakeDTO cakeDTO) {
         cake.setReceiver(cakeDTO.getReceiver());
-        cake.setAddress(cakeDTO.getAddress());
-        cake.setDetail(cakeDTO.getDetail());
-        cake.setCakeType(cakeDTO.getCakeType());
-        cake.setPostCode(cakeDTO.getPostCode());
         cake.setDivision(cakeDTO.getDivision());
         cake.setDeliveryDate(cakeDTO.getDeliveryDate());
         cakeRepository.save(cake);
@@ -277,22 +270,13 @@ public class PersonService {
                 case 3: // 부서
                     sheet.setColumnWidth(i, 4000);
                     break;
-                case 4: // 케이크 종류
-                    sheet.setColumnWidth(i, 5500);
-                    break;
-                case 5: // 배송일
+                case 4: // 배송일
                     sheet.setColumnWidth(i, 3500);
                     break;
-                case 6: // 우편번호
-                    sheet.setColumnWidth(i, 3000);
-                    break;
-                case 7: // 배송 주소
-                    sheet.setColumnWidth(i, 15000);
-                    break;
-                case 8: // 연락처
+                case 5: // 연락처
                     sheet.setColumnWidth(i, 4000);
                     break;
-                case 9: // 수령자
+                case 6: // 수령자
                     sheet.setColumnWidth(i, 3000);
                     break;
             }
@@ -361,7 +345,7 @@ public class PersonService {
 
     public byte[] generateCakeExcel() throws IOException {
         List<Person> personList = personRepository.findAllWithCake();
-        String[] headers = {"NO", "신청자", "사번", "부서", "케이크 종류", "배송일", "우편번호", "배송 주소", "연락처", "수령자"};
+        String[] headers = {"NO", "신청자", "사번", "부서", "배송일", "연락처", "수령자"};
 
         return generateExcel(personList, "생일케이크신청목록", headers, ExcelType.CAKE, this::fillCakeRow);
     }
@@ -442,19 +426,13 @@ public class PersonService {
 
         if (person.getCake() != null) {
             Cake cake = person.getCake();
-            String cakeType = cake.getCakeType() != null && cake.getCakeType().getValue() != null
-                    ? cake.getCakeType().getValue().toString() : "";
-            createCell(row, 4, cakeType, centerStyle);
-
             String deliveryDate = cake.getDeliveryDate() != null
                     ? cake.getDeliveryDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) : "";
-            createCell(row, 5, deliveryDate, centerStyle);
-            createCell(row, 6, cake.getPostCode(), centerStyle);
-            createCell(row, 7, buildFullAddress(cake.getAddress(), cake.getDetail()), dataStyle);
-            createCell(row, 8, person.getPhone(), centerStyle);
-            createCell(row, 9, cake.getReceiver(), centerStyle);
+            createCell(row, 4, deliveryDate, centerStyle);
+            createCell(row, 5, person.getPhone(), centerStyle);
+            createCell(row, 6, cake.getReceiver(), centerStyle);
         } else {
-            for (int i = 4; i <= 9; i++) {
+            for (int i = 4; i <= 6; i++) {
                 createCell(row, i, "", dataStyle);
             }
         }
@@ -478,5 +456,19 @@ public class PersonService {
                 createCell(row, i, "", dataStyle);
             }
         }
+    }
+
+    public void addPerson(PersonDTO personDTO) {
+        Person person = new Person();
+        person.setName(personDTO.getName());
+        person.setEmployeeNumber(personDTO.getEmployeeNumber());
+        person.setDepartment(personDTO.getDepartment());
+        person.setPhone(personDTO.getPhone());
+
+        personRepository.save(person);
+    }
+
+    public void deletePerson(Person person) {
+        personRepository.delete(person);
     }
 }

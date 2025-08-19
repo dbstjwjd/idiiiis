@@ -41,7 +41,6 @@ public class CakeController {
         if (cake != null) {
             model.addAttribute("cake", cake);
         }
-        model.addAttribute("cakeTypes", CakeType.values());
         model.addAttribute("person", person);
         return "cake_set";
     }

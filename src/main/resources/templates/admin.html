@@ -1,0 +1,130 @@
+<html layout:decorate="~{layout}">
+<head>
+    <!-- Font Awesome CDN 추가 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<div layout:fragment="content" class="container">
+    <!-- 헤더 영역 -->
+    <div class="header">
+        <a href="/"><img src="/image/idis_logo.png" alt="" width="150" class="mt-2"></a>
+        <h1>생산운영팀 인원 관리</h1>
+    </div>
+
+    <div class="header-section">
+        <div class="add-section">
+            <button type="button" class="but but_dark py-3" id="btn_add">
+                <i class="fas fa-plus me-2"></i> 인원 추가
+            </button>
+        </div>
+        <div class="search-section">
+            <div class="floating-label input-group">
+                <input type="text" id="search_kw" class="form-control" th:value="${kw}" placeholder=" ">
+                <label>이름, 부서, 사번</label>
+                <button class="but but_dark" type="button" id="btn_search">찾기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 테이블 영역 -->
+    <div class="table-container">
+        <table class="table mt-3 text-center">
+            <thead>
+            <tr class="table-primary">
+                <th>부서</th>
+                <th>사번</th>
+                <th>이름</th>
+                <th>삭제</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="person:${paging}">
+                <td th:text="${person.department}"></td>
+                <td th:text="${person.employeeNumber}"></td>
+                <td th:text="${person.name}"></td>
+                <td>
+                    <button type="button" class="but but-outline btn_delete" th:data-id="${person.id}">삭제</button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 페이징 영역 -->
+    <div th:if="${!paging.isEmpty()}" class="pagination-container">
+        <ul class="pagination justify-content-center mt-4">
+            <li class="page-item" th:classappend="${!paging.hasPrevious} ? 'disabled'">
+                <a class="page-link" href="javascript:void(0)" th:data-page="${paging.number-1}">
+                    <span>이전</span>
+                </a>
+            </li>
+            <li th:each="page: ${#numbers.sequence(0, paging.totalPages-1)}"
+                th:if="${page >= paging.number-2 and page <= paging.number+2}"
+                th:classappend="${page == paging.number} ? 'active'"
+                class="page-item">
+                <a th:text="${page}" class="page-link" href="javascript:void(0)" th:data-page="${page}"></a>
+            </li>
+            <li class="page-item" th:classappend="${!paging.hasNext} ? 'disabled'">
+                <a class="page-link" href="javascript:void(0)" th:data-page="${paging.number+1}">
+                    <span>다음</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <form th:action="@{/admin}" method="get" id="searchForm">
+        <input type="hidden" id="kw" name="kw" th:value="${kw}">
+        <input type="hidden" id="page" name="page" th:value="${paging.number}">
+    </form>
+
+    <style>
+        /* 데스크톱: 가로 배치, 양쪽 끝에 배치 */
+        @media (min-width: 768px) {
+            .header-section {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+        }
+
+        /* 모바일에서는 버튼이 전체 너비 */
+        @media (max-width: 767px) {
+
+        }
+    </style>
+
+    <script>
+        $(document).ready(function () {
+            $('.btn_delete').click(function (e) {
+                const personId = $(this).data('id');
+                showConfirmModal(
+                    "정말 삭제하시겠습니까?",
+                    () => window.location.href = "/admin/delete/" + personId,
+                    () => showToast("취소되었습니다.", "info")
+                );
+            });
+
+            // 인원 추가 버튼 클릭 이벤트
+            $("#btn_add_person").on("click", function () {
+                window.location.href = "/admin/add";
+            });
+
+            $(".page-link").on("click", function () {
+                $("#page").val($(this).data("page"));
+                $("#searchForm").submit();
+            });
+
+            $("#btn_search").on("click", function () {
+                $("#kw").val($("#search_kw").val());
+                $("#page").val(0);
+                $("#searchForm").submit();
+            });
+
+            $("#search_kw").on("keypress", function (e) {
+                if (e.which === 13) {  // Enter key
+                    $("#btn_search").click();
+                }
+            });
+        });
+    </script>
+</div>
+</html>
